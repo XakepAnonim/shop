@@ -2,20 +2,6 @@ from urllib.error import URLError
 from urllib.parse import quote
 from urllib.request import urlopen
 
-import pyotp
-
-
-def generate_otp():
-    """
-    Генерация кода для SMS и его секретного ключа.
-    """
-    secret = pyotp.random_base32()
-    totp = pyotp.TOTP(secret, interval=300)
-    otp_code = totp.now()
-    print('Generated code: ' + otp_code)
-    print('Generated key: ' + secret)
-    return otp_code, secret
-
 
 def send_sms(api_id, phone_number, message):
     """

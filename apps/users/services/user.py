@@ -1,5 +1,6 @@
-from django.shortcuts import get_object_or_404
 import uuid
+
+from django.shortcuts import get_object_or_404
 
 from apps.users.models import User
 
@@ -21,15 +22,18 @@ class UserService:
         return user
 
     @staticmethod
-    def get_or_create_with_phone_number(phone_number, secret):
-        user, created = User.objects.get_or_create(phone_number=phone_number)
+    def get_or_create_user(contact, secret, password=None):
+        """
+        Получает или создаёт пользователя на основе контактной информации.
+        """
+        if contact['type'] == 'phone':
+            user, created = User.objects.get_or_create(
+                phone_number=contact['value']
+            )
+        elif contact['type'] == 'email':
+            user, created = User.objects.get_or_create(email=contact['value'])
         user.secret_key = secret
-        user.save()
-        return user
-
-    @staticmethod
-    def get_or_create_with_email(email, secret):
-        user, created = User.objects.get_or_create(email=email)
-        user.secret_key = secret
+        if created and password:
+            user.set_password(password)
         user.save()
         return user

@@ -8,7 +8,7 @@ from apps.users.services.user import UserService
 
 
 class VerifyOTPSerializer(serializers.Serializer):
-    contact = serializers.CharField(max_length=255)
+    contact = serializers.CharField()
     code = serializers.CharField(max_length=6)
 
     def validate(self, data):
@@ -17,7 +17,7 @@ class VerifyOTPSerializer(serializers.Serializer):
         """
         contact = data.get('contact')
         code = data.get('code')
-        print(code)
+
         if '@' in contact:
             user = UserService.get_by_email(contact)
             if not user:
@@ -56,7 +56,25 @@ class VerifyOTPSerializer(serializers.Serializer):
 class ContactSerializer(serializers.Serializer):
     contact = serializers.CharField()
 
-    def validate_contact(self, value):
+    def validate(self, value):
+        """
+        Проверяем, что введены либо телефон, либо email.
+        """
+        if re.match(r'^\+?7\d{10}$', value):
+            return {'type': 'phone', 'value': value}
+        elif re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', value):
+            return {'type': 'email', 'value': value}
+        else:
+            raise serializers.ValidationError(
+                'Введите корректный номер телефона или email.'
+            )
+
+
+class PasswordSerializer(serializers.Serializer):
+    contact = serializers.CharField()
+    password = serializers.CharField(min_length=8, max_length=16)
+
+    def validate(self, value):
         """
         Проверяем, что введены либо телефон, либо email.
         """
@@ -71,15 +89,16 @@ class ContactSerializer(serializers.Serializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    contact = serializers.CharField(max_length=255)
+    contact = serializers.CharField()
     code = serializers.CharField(max_length=6)
-    new_password = serializers.CharField(min_length=8, max_length=128)
+    new_password = serializers.CharField(min_length=8, max_length=16)
 
     def validate(self, data):
         """
         Валидация данных: проверка кода подтверждения и существования пользователя.
         """
         contact = data.get('contact')
+        code = data.get('code')
 
         if '@' in contact:
             user = UserService.get_by_email(contact)
@@ -98,12 +117,16 @@ class ChangePasswordSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
-def save(self, validated_data):
-    """
-    Обновление пароля пользователя.
-    """
-    user = validated_data['user']
-    new_password = validated_data['new_password']
-    user.set_password(new_password)
-    user.save()
-    return {'status': 'Пароль успешно изменен.'}
+    def save(self, validated_data):
+        """
+        Обновление пароля пользователя.
+        """
+        user = validated_data['user']
+        new_password = validated_data['new_password']
+        user.set_password(new_password)
+        user.save()
+        refresh = RefreshToken.for_user(user)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }

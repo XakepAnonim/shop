@@ -6,12 +6,10 @@ from rest_framework.response import Response
 from apps.custom_auth.serializers import (
     VerifyOTPSerializer,
     ContactSerializer,
+    PasswordSerializer,
     ChangePasswordSerializer,
 )
-from apps.custom_auth.services.email import send_email_verification
-from apps.custom_auth.services.sms import generate_otp, send_sms
-from apps.users.services.user import UserService
-from config.settings import API_ID
+from apps.custom_auth.services.code import send_verification_code
 
 
 @api_view(['POST'])
@@ -22,24 +20,7 @@ def send_code_handler(request: Request) -> Response:
     serializer = ContactSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     contact_info = serializer.validated_data['contact']
-
-    otp_code, secret = generate_otp()
-    message = f'Ваш код подтверждения: {otp_code}'
-
-    if contact_info['type'] == 'phone':
-        phone_number = contact_info['value']
-        UserService.get_or_create_with_phone_number(phone_number, secret)
-        result = send_sms(API_ID, phone_number, message)
-    elif contact_info['type'] == 'email':
-        email = contact_info['value']
-        UserService.get_or_create_with_email(email, secret)
-        result = send_email_verification(email, message)
-    else:
-        return Response(
-            {'detail': 'Неподдерживаемый тип данных.'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
+    result = send_verification_code(contact_info)
     return Response({'data': result}, status=status.HTTP_200_OK)
 
 
@@ -55,11 +36,29 @@ def verify_code_handler(request: Request) -> Response:
 
 
 @api_view(['POST'])
-def change_password_handler(request):
+def login_password_handler(request: Request) -> Response:
+    """
+    Функция для входа пользователя через пароль.
+    """
+    serializer = PasswordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    contact_info = serializer.validated_data['contact']
+    password = serializer.validated_data['password']
+    result = send_verification_code(contact_info, password)
+    return Response({'data': result}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def change_password_handler(request: Request) -> Response:
     """
     Обработчик для смены пароля через код подтверждения.
     """
     serializer = ChangePasswordSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    result = serializer.save()
-    return Response({'data': result}, status=status.HTTP_200_OK)
+    tokens = serializer.save()
+    return Response(tokens, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def reset_password_handler(request: Request) -> Response:
+    pass
