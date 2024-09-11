@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -96,7 +97,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         blank=True,
         null=True,
     )
-    phone_number = models.CharField(
+    phone_number = PhoneNumberField(
         max_length=15,
         verbose_name='Phone Number',
         unique=True,
@@ -137,8 +138,11 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
 
     objects = UserManager()
 
+    def __str__(self):
+        return ''
+
     def clean(self):
-        if self.is_admin and self.is_company:
+        if self.is_staff and self.is_company:
             raise ValidationError(
                 'Пользователь не может быть администратором и '
                 'компанией одновременно'
