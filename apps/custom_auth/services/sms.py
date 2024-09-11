@@ -1,20 +1,15 @@
-from urllib.error import URLError
-from urllib.parse import quote
-from urllib.request import urlopen
+import smsaero
+
+from config.settings import SMSAERO_EMAIL, SMSAERO_API_KEY
 
 
-def send_sms(api_id, phone_number, message):
+async def send_sms(phone: int, message: str) -> None:
     """
-    Функция для отправки SMS через sms.ru.
+    Функция для Отправки sms на номер телефона.
     """
-    url = f'https://sms.ru/sms/send?api_id={api_id}&to={phone_number}&msg={quote(message)}&json=1'
+    phone_number = int(phone.replace("+", ""))
+    api = smsaero.SmsAero(SMSAERO_EMAIL, SMSAERO_API_KEY)
     try:
-        res = urlopen(url, timeout=10)
-        service_result = res.read().decode('utf-8')
-        if '"status":"OK"' in service_result:
-            return {'SMS отправлено успешно.'}
-        else:
-            return {f'Ошибка отправки SMS: {service_result}'}
-    except URLError as e:
-        return {'Ошибка при отправке запроса:', e}
-
+        await api.send_sms(phone_number, message)
+    finally:
+        await api.close_session()

@@ -116,7 +116,8 @@ STATIC_ROOT = '/app/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-API_ID = os.environ['API_ID']
+SMSAERO_EMAIL = os.environ['SMSAERO_EMAIL']
+SMSAERO_API_KEY = os.environ['SMSAERO_API_KEY']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
