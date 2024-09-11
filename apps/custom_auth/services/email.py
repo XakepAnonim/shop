@@ -10,9 +10,8 @@ def send_email_verification(email, message):
     subject = 'Код подтверждения'
     try:
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-        return {'status': 'OK', 'message': 'Email отправлен успешно.'}
+        return {'message': 'Код был отправлен на указанный адрес'}
     except Exception as e:
         return {
-            'status': 'ERROR',
-            'message': f'Ошибка при отправке email: {str(e)}',
+            'error': f'Ошибка при отправке email: {str(e)}',
         }

@@ -1,5 +1,4 @@
-import re
-
+from django.contrib.auth import authenticate
 from pyotp import TOTP
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -31,7 +30,11 @@ class VerifyOTPSerializer(serializers.Serializer):
                     'Пользователь с таким номером телефона не найден.'
                 )
 
-        TOTP(user.secret_key, interval=300)
+        totp = TOTP(user.secret_key, interval=300)
+        if not totp.verify(code):
+            raise serializers.ValidationError(
+                {'data': 'Неверный код подтверждения'}
+            )
         data['user'] = user
         return data
 
@@ -56,36 +59,39 @@ class VerifyOTPSerializer(serializers.Serializer):
 class ContactSerializer(serializers.Serializer):
     contact = serializers.CharField()
 
-    def validate(self, value):
-        """
-        Проверяем, что введены либо телефон, либо email.
-        """
-        if re.match(r'^\+?7\d{10}$', value):
-            return {'type': 'phone', 'value': value}
-        elif re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', value):
-            return {'type': 'email', 'value': value}
-        else:
-            raise serializers.ValidationError(
-                'Введите корректный номер телефона или email.'
-            )
+
+class ContactInfoSerializer(serializers.Serializer):
+    type = serializers.CharField()
+    value = serializers.CharField()
 
 
 class PasswordSerializer(serializers.Serializer):
     contact = serializers.CharField()
     password = serializers.CharField(min_length=8, max_length=16)
 
-    def validate(self, value):
+    def validate(self, attrs) -> dict:
         """
-        Проверяем, что введены либо телефон, либо email.
+        Проверка входных данных и аутентификация пользователя.
         """
-        if re.match(r'^\+?7\d{10}$', value):
-            return {'type': 'phone', 'value': value}
-        elif re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', value):
-            return {'type': 'email', 'value': value}
+        contact = attrs.get('contact')
+        password = attrs.get('password')
+        print(contact)
+        print(password)
+        phone_number = None
+        email = None
+
+        if '@' in contact:
+            email = contact
         else:
-            raise serializers.ValidationError(
-                'Введите корректный номер телефона или email.'
-            )
+            phone_number = contact
+
+        if phone_number:
+            user = authenticate(phone_number=phone_number, password=password)
+        elif email:
+            user = authenticate(email=email, password=password)
+
+        attrs['user'] = user
+        return attrs
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -113,7 +119,11 @@ class ChangePasswordSerializer(serializers.Serializer):
                     'Пользователь с таким номером телефона не найден.'
                 )
 
-        TOTP(user.secret_key, interval=300)
+        totp = TOTP(user.secret_key, interval=300)
+        if not totp.verify(code):
+            raise serializers.ValidationError(
+                {'data': 'Неверный код подтверждения'}
+            )
         data['user'] = user
         return data
 

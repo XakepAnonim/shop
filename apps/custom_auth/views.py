@@ -1,3 +1,6 @@
+import asyncio
+import re
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
@@ -8,6 +11,7 @@ from apps.custom_auth.serializers import (
     ContactSerializer,
     PasswordSerializer,
     ChangePasswordSerializer,
+    ContactInfoSerializer,
 )
 from apps.custom_auth.services.code import send_verification_code
 
@@ -17,10 +21,17 @@ def send_code_handler(request: Request) -> Response:
     """
     Функция для отправки кода на телефон или почту.
     """
-    serializer = ContactSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    contact_info = serializer.validated_data['contact']
-    result = send_verification_code(contact_info)
+    serializer_response = ContactSerializer(data=request.data)
+    serializer_response.is_valid(raise_exception=True)
+    contact_info = serializer_response.validated_data['contact']
+
+    if re.match(r'^\+?7\d{10}$', contact_info):
+        info = {'type': 'phone', 'value': contact_info}
+    elif re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', contact_info):
+        info = {'type': 'email', 'value': contact_info}
+
+    serializer = ContactInfoSerializer(info)
+    result = asyncio.run(send_verification_code(serializer.data))
     return Response({'data': result}, status=status.HTTP_200_OK)
 
 
@@ -42,9 +53,27 @@ def login_password_handler(request: Request) -> Response:
     """
     serializer = PasswordSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    user = serializer.validated_data.get('user')
+    if not user:
+        return Response(
+            {
+                'error': {
+                    'code': status.HTTP_401_UNAUTHORIZED,
+                    'message': 'Authentication failed',
+                }
+            },
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
     contact_info = serializer.validated_data['contact']
     password = serializer.validated_data['password']
-    result = send_verification_code(contact_info, password)
+
+    if re.match(r'^\+?7\d{10}$', contact_info):
+        info = {'type': 'phone', 'value': contact_info}
+    elif re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', contact_info):
+        info = {'type': 'email', 'value': contact_info}
+
+    serializer = ContactInfoSerializer(info)
+    result = asyncio.run(send_verification_code(serializer.data, password))
     return Response({'data': result}, status=status.HTTP_200_OK)
 
 
