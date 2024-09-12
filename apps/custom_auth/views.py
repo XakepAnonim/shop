@@ -1,5 +1,4 @@
 import asyncio
-import re
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -14,6 +13,7 @@ from apps.custom_auth.serializers import (
     ContactInfoSerializer,
 )
 from apps.custom_auth.services.code import send_verification_code
+from apps.custom_auth.services.contact import Contact
 
 
 @api_view(['POST'])
@@ -24,11 +24,7 @@ def send_code_handler(request: Request) -> Response:
     serializer_response = ContactSerializer(data=request.data)
     serializer_response.is_valid(raise_exception=True)
     contact_info = serializer_response.validated_data['contact']
-
-    if re.match(r'^\+?7\d{10}$', contact_info):
-        info = {'type': 'phone', 'value': contact_info}
-    elif re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', contact_info):
-        info = {'type': 'email', 'value': contact_info}
+    info = Contact.check_contact_type(contact_info)
 
     serializer = ContactInfoSerializer(info)
     result = asyncio.run(send_verification_code(serializer.data))
@@ -66,11 +62,7 @@ def login_password_handler(request: Request) -> Response:
         )
     contact_info = serializer.validated_data['contact']
     password = serializer.validated_data['password']
-
-    if re.match(r'^\+?7\d{10}$', contact_info):
-        info = {'type': 'phone', 'value': contact_info}
-    elif re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', contact_info):
-        info = {'type': 'email', 'value': contact_info}
+    info = Contact.check_contact_type(contact_info)
 
     serializer = ContactInfoSerializer(info)
     result = asyncio.run(send_verification_code(serializer.data, password))
@@ -82,12 +74,9 @@ def change_password_handler(request: Request) -> Response:
     """
     Обработчик для смены пароля через код подтверждения.
     """
-    serializer = ChangePasswordSerializer(data=request.data)
+    serializer = ChangePasswordSerializer(
+        data=request.data, context={'request': request}
+    )
     serializer.is_valid(raise_exception=True)
     tokens = serializer.save()
     return Response(tokens, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-def reset_password_handler(request: Request) -> Response:
-    pass

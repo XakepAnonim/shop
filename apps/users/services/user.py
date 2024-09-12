@@ -37,3 +37,33 @@ class UserService:
             user.set_password(password)
         user.save()
         return user
+
+    @staticmethod
+    def get_or_create_user_google(backend, user, response, *args, **kwargs):
+        """
+        Функция для получения или создания пользователя на основе данных от Google.
+        """
+        print(f"Получены данные от Google: {response}")
+        email = response.get('email')
+        first_name = response.get('given_name')
+        last_name = response.get('family_name')
+        picture = response.get('picture')
+        locale = response.get('locale')
+
+        try:
+            user = User.objects.get(email=email)
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+        except User.DoesNotExist:
+            user = User.objects.create(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                avatar=picture,
+                language=locale,
+                approved_email=response.get('verified_email', False),
+            )
+            user.set_unusable_password()
+            user.save()
+        return user

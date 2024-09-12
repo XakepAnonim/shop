@@ -1,9 +1,11 @@
+import re
+
 from django.contrib.auth import authenticate
 from pyotp import TOTP
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.services.user import UserService
+from apps.custom_auth.services.contact import Contact
 
 
 class VerifyOTPSerializer(serializers.Serializer):
@@ -16,19 +18,7 @@ class VerifyOTPSerializer(serializers.Serializer):
         """
         contact = data.get('contact')
         code = data.get('code')
-
-        if '@' in contact:
-            user = UserService.get_by_email(contact)
-            if not user:
-                raise serializers.ValidationError(
-                    'Пользователь с таким email не найден.'
-                )
-        else:
-            user = UserService.get_by_phone_number(contact)
-            if not user:
-                raise serializers.ValidationError(
-                    'Пользователь с таким номером телефона не найден.'
-                )
+        user = Contact.check_contact_info(contact, serializers)
 
         totp = TOTP(user.secret_key, interval=300)
         if not totp.verify(code):
@@ -43,10 +33,14 @@ class VerifyOTPSerializer(serializers.Serializer):
         Генерация JWT токенов для пользователя.
         """
         user = validated_data['user']
-        if '@' in validated_data['contact']:
+        if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', validated_data['contact']):
             user.approved_email = True
-        else:
+        elif re.match(r'^\+?7\d{10}$', validated_data['contact']):
             user.approved_phone = True
+        else:
+            raise serializers.ValidationError(
+                'E-mail/ телефон или пароль указаны неверно.'
+            )
         user.save()
 
         refresh = RefreshToken.for_user(user)
@@ -75,15 +69,18 @@ class PasswordSerializer(serializers.Serializer):
         """
         contact = attrs.get('contact')
         password = attrs.get('password')
-        print(contact)
-        print(password)
+
         phone_number = None
         email = None
 
-        if '@' in contact:
+        if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', contact):
             email = contact
-        else:
+        elif re.match(r'^\+?7\d{10}$', contact):
             phone_number = contact
+        else:
+            raise serializers.ValidationError(
+                'E-mail/ телефон или пароль указаны неверно.'
+            )
 
         if phone_number:
             user = authenticate(phone_number=phone_number, password=password)
@@ -105,19 +102,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         """
         contact = data.get('contact')
         code = data.get('code')
-
-        if '@' in contact:
-            user = UserService.get_by_email(contact)
-            if not user:
-                raise serializers.ValidationError(
-                    'Пользователь с таким email не найден.'
-                )
-        else:
-            user = UserService.get_by_phone_number(contact)
-            if not user:
-                raise serializers.ValidationError(
-                    'Пользователь с таким номером телефона не найден.'
-                )
+        user = Contact.check_contact_info(contact, serializers)
 
         totp = TOTP(user.secret_key, interval=300)
         if not totp.verify(code):
@@ -127,12 +112,12 @@ class ChangePasswordSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
-    def save(self, validated_data):
+    def save(self):
         """
         Обновление пароля пользователя.
         """
-        user = validated_data['user']
-        new_password = validated_data['new_password']
+        user = self.validated_data['user']
+        new_password = self.validated_data['new_password']
         user.set_password(new_password)
         user.save()
         refresh = RefreshToken.for_user(user)
