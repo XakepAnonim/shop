@@ -1,4 +1,3 @@
-import social_django.urls
 from django.urls import path, include
 
 from apps.custom_auth.views import (
@@ -7,7 +6,6 @@ from apps.custom_auth.views import (
     change_password_handler,
     login_password_handler,
 )
-social_django
 
 urlpatterns = [
     path('send', send_code_handler),
