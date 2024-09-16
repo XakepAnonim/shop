@@ -13,7 +13,7 @@ class UserAdmin(admin.ModelAdmin):
         'phone_number',
         'is_staff',
         'is_company',
-        'company_name',
+        'company',
         'approved_phone',
         'approved_email',
     )
@@ -37,6 +37,8 @@ class UserAdmin(admin.ModelAdmin):
                     'last_name',
                     'phone_number',
                     'password',
+                    'is_staff',
+                    'is_company',
                 )
             },
         ),

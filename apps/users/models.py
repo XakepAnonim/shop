@@ -1,13 +1,16 @@
-from django.core.exceptions import ValidationError
-from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+import uuid
+
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin,
 )
+from django.core.exceptions import ValidationError
+from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
+
+from apps.main.models import Company
 from apps.models import BaseModel
-import uuid
 
 ROLES = (
     ('admin', 'Администратор'),
@@ -81,52 +84,59 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     email = models.EmailField(
         unique=True,
         max_length=255,
-        verbose_name='Email address',
+        verbose_name='Почта',
         blank=True,
         null=True,
     )
     first_name = models.CharField(
         max_length=50,
-        verbose_name='First Name',
+        verbose_name='Имя',
         blank=True,
         null=True,
     )
     last_name = models.CharField(
         max_length=50,
-        verbose_name='Last Name',
+        verbose_name='Фамилия',
         blank=True,
         null=True,
     )
     phone_number = PhoneNumberField(
         max_length=15,
-        verbose_name='Phone Number',
+        verbose_name='Номер телефона',
         unique=True,
         blank=True,
         null=True,
     )
-    is_staff = models.BooleanField(default=False)
-    is_company = models.BooleanField(default=False)
+    is_staff = models.BooleanField(
+        default=False, verbose_name='Администратор?'
+    )
+    is_company = models.BooleanField(default=False, verbose_name='Компания?')
     date_of_birth = models.DateField(
-        null=True, blank=True, verbose_name='Date of Birth'
+        null=True, blank=True, verbose_name='Дата рождения'
     )
     avatar = models.ImageField(
-        upload_to='avatars/', null=True, blank=True, verbose_name='Avatar'
+        upload_to='avatars/', null=True, blank=True, verbose_name='Фото'
     )
-    address = models.TextField(null=True, blank=True, verbose_name='Address')
-    company_name = models.CharField(
-        max_length=100, null=True, blank=True, verbose_name='Company Name'
+    address = models.TextField(null=True, blank=True, verbose_name='Адрес')
+    company = models.OneToOneField(
+        Company,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Компания',
     )
     secret_key = models.CharField(max_length=32, null=True, blank=True)
     approved_phone = models.BooleanField(
-        default=False, verbose_name='Approved Phone'
+        default=False, verbose_name='Подтвержден номер телефона?'
     )
     approved_email = models.BooleanField(
-        default=False, verbose_name='Approved Email'
+        default=False, verbose_name='Подтверждена почта?'
     )
     language = models.CharField(
         max_length=10,
         choices=[('en', 'English'), ('ru', 'Russian')],
         default='ru',
+        verbose_name='Язык',
     )
 
     permissions = models.ManyToManyField(
@@ -156,3 +166,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         if permission:
             return self.permissions.filter(pk=permission.pk).exists()
         return False
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'

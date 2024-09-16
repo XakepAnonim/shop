@@ -44,9 +44,4 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             'company_name',
             'language',
         ]
-
-
-class PhoneNumberSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(
-        max_length=15, label='Введите номер телефона'
-    )
+        read_only_fields = ('uuid',)
