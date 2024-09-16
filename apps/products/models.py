@@ -1,0 +1,116 @@
+import uuid
+
+from django.db import models
+from django.urls import reverse
+
+from apps.models import BaseModel
+
+CURRENCY_TYPE = (
+    ('RUB', 'RUB'),
+    ('US', 'US'),
+    ('YEN', 'YEN'),
+    ('EURO', 'EURO'),
+    ('YUAN', 'YUAN'),
+)
+
+
+class Product(BaseModel, models.Model):
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
+    name = models.CharField(max_length=256, verbose_name='Название')
+    product_image = models.ImageField(
+        upload_to='products/',
+        null=True,
+        blank=True,
+        verbose_name='Изображение',
+    )
+    specs = models.TextField(
+        max_length=150, verbose_name='Тех. Характеристики'
+    )
+    description = models.TextField(max_length=1500, verbose_name='Описание')
+    sku = models.PositiveBigIntegerField(unique=True, verbose_name='Артикул')
+    price = models.DecimalField(
+        max_digits=7, decimal_places=2, verbose_name='Цена'
+    )
+    price_currency = models.CharField(
+        max_length=4,
+        choices=CURRENCY_TYPE,
+        default='RUB',
+        verbose_name='Валюта',
+    )
+    stock_quantity = models.PositiveIntegerField(
+        verbose_name='Кол-во на складе'
+    )
+    is_available = models.BooleanField(verbose_name='В наличии?')
+    brand = models.ForeignKey(
+        'main.Brand',
+        related_name='products',
+        on_delete=models.CASCADE,
+        verbose_name='Бренд',
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.sku:
+            self.sku = self.generate_unique_sku()
+        super(Product, self).save(*args, **kwargs)
+
+    def generate_unique_sku(self):
+        import random
+
+        while True:
+            sku = random.randint(100000, 999999)
+            if not Product.objects.filter(sku=sku).exists():
+                return sku
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('admin:products_product_change', args=[str(self.id)])
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
+
+
+class CharacteristicGroup(models.Model):
+    product = models.ForeignKey(
+        Product,
+        related_name='characteristic_groups',
+        on_delete=models.CASCADE,
+        verbose_name='Продукт',
+    )
+    name = models.CharField(max_length=256, verbose_name='Название группы')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse(
+            'admin:products_characteristicgroup_change', args=[str(self.id)]
+        )
+
+    class Meta:
+        verbose_name = 'Группа характеристики'
+        verbose_name_plural = 'Группы характеристики'
+
+
+class Characteristic(models.Model):
+    group = models.ForeignKey(
+        CharacteristicGroup,
+        related_name='characteristics',
+        on_delete=models.CASCADE,
+        verbose_name='Группа характеристик',
+    )
+    title = models.CharField(
+        max_length=256, verbose_name='Название характеристики'
+    )
+    value = models.CharField(max_length=1024, verbose_name='Значение')
+
+    def __str__(self):
+        return f'{self.title}: {self.value}'
+
+    class Meta:
+        verbose_name = 'Характеристика'
+        verbose_name_plural = 'Характеристики'
