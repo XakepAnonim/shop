@@ -3,7 +3,6 @@ import os
 
 
 class Command(StartAppCommand):
-    print(1)
     def handle(self, *args, **options):
         super().handle(*args, **options)
         app_name = options['name']

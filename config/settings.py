@@ -24,8 +24,12 @@ INSTALLED_APPS = [
     'social_django',
     'rest_framework',
     'rest_framework_simplejwt',
+    'config',
     'apps.users',
     'apps.custom_auth',
+    'apps.products',
+    'apps.main',
+    'apps.test',
 ]
 
 MIDDLEWARE = [
