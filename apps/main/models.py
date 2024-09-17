@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.urls import reverse
 
@@ -5,6 +7,9 @@ from apps.models import BaseModel
 
 
 class Company(BaseModel, models.Model):
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
     name = models.CharField(max_length=256, verbose_name='Название')
     description = models.TextField(max_length=500, verbose_name='Описание')
 
@@ -20,6 +25,9 @@ class Company(BaseModel, models.Model):
 
 
 class Brand(BaseModel, models.Model):
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
     name = models.CharField(max_length=256, verbose_name='Название')
     company = models.ForeignKey(
         Company,
