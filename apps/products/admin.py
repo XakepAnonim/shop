@@ -17,7 +17,36 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ('brand', 'price_currency', 'is_available')
     search_fields = ('name', 'sku', 'description')
-    readonly_fields = ('uuid',)
+    readonly_fields = ('uuid', 'slug', 'created_at', 'updated_at')
+    fieldsets = (
+        (
+            None,
+            {
+                'fields': (
+                    'uuid',
+                    'slug',
+                    'name',
+                    'product_image',
+                    'specs',
+                    'description',
+                    'price',
+                    'stock_quantity',
+                    'brand',
+                )
+            },
+        ),
+        ('Important dates', {'fields': ('updated_at', 'created_at')}),
+        (
+            'Additional Info',
+            {
+                'fields': (
+                    'sku',
+                    'price_currency',
+                    'is_available',
+                )
+            },
+        ),
+    )
 
     def brand_display(self, obj):
         return format_html(

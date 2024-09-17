@@ -2,6 +2,8 @@ import uuid
 
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
+from unidecode import unidecode
 
 from apps.models import BaseModel
 
@@ -17,6 +19,9 @@ CURRENCY_TYPE = (
 class Product(BaseModel, models.Model):
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
+    slug = models.SlugField(
+        max_length=256, unique=True, blank=True, verbose_name='Slug'
     )
     name = models.CharField(max_length=256, verbose_name='Название')
     product_image = models.ImageField(
@@ -53,6 +58,8 @@ class Product(BaseModel, models.Model):
     def save(self, *args, **kwargs):
         if not self.sku:
             self.sku = self.generate_unique_sku()
+        if not self.slug:
+            self.slug = self.generate_unique_slug()
         super(Product, self).save(*args, **kwargs)
 
     def generate_unique_sku(self):
@@ -62,6 +69,15 @@ class Product(BaseModel, models.Model):
             sku = random.randint(100000, 999999)
             if not Product.objects.filter(sku=sku).exists():
                 return sku
+
+    def generate_unique_slug(self):
+        base_slug = slugify(unidecode(self.name))
+        slug = base_slug
+        num = 1
+        while Product.objects.filter(slug=slug).exists():
+            slug = f'{base_slug}-{num}'
+            num += 1
+        return slug
 
     def __str__(self):
         return self.name
