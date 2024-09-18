@@ -13,3 +13,4 @@ smsaero-api-async==3.0.0
 django-phonenumber-field==8.0.0
 phonenumbers==8.13.45
 unidecode==1.3.8
+django-query-counter==0.4.0
