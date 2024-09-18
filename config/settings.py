@@ -24,12 +24,14 @@ INSTALLED_APPS = [
     'social_django',
     'rest_framework',
     'rest_framework_simplejwt',
+    'query_counter',
     'config',
     'apps.users',
     'apps.custom_auth',
     'apps.products',
     'apps.main',
     'apps.test',
+    'apps.catalog',
 ]
 
 MIDDLEWARE = [
@@ -41,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'query_counter.middleware.DjangoQueryCounterMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
