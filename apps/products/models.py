@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from unidecode import unidecode
 
+from apps.catalog.models import ProductType, ProductSubtype
 from apps.models import BaseModel
 
 CURRENCY_TYPE = (
@@ -53,6 +54,22 @@ class Product(BaseModel, models.Model):
         related_name='products',
         on_delete=models.CASCADE,
         verbose_name='Бренд',
+    )
+    product_type = models.ForeignKey(
+        ProductType,
+        related_name='products_in_subtype',
+        on_delete=models.CASCADE,
+        verbose_name='Тип продукта',
+        null=True,
+        blank=True,
+    )
+    product_subtype = models.ForeignKey(
+        ProductSubtype,
+        related_name='products_in_type',
+        on_delete=models.CASCADE,
+        verbose_name='Подтип продукта',
+        null=True,
+        blank=True,
     )
 
     def save(self, *args, **kwargs):
