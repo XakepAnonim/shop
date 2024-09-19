@@ -13,7 +13,7 @@ class UserService:
 
     @staticmethod
     def get_by_phone_number(phone_number: int) -> User:
-        user = get_object_or_404(User, phone_number=phone_number)
+        user = get_object_or_404(User, phoneNumber=phone_number)
         return user
 
     @staticmethod
@@ -28,7 +28,7 @@ class UserService:
         """
         if contact['type'] == 'phone':
             user, created = User.objects.get_or_create(
-                phone_number=contact['value']
+                phoneNumber=contact['value']
             )
         elif contact['type'] == 'email':
             user, created = User.objects.get_or_create(email=contact['value'])

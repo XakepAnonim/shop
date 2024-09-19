@@ -17,7 +17,7 @@ CURRENCY_TYPE = (
 )
 
 
-class Product(BaseModel, models.Model):
+class Product(BaseModel):
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
@@ -25,7 +25,7 @@ class Product(BaseModel, models.Model):
         max_length=256, unique=True, blank=True, verbose_name='Slug'
     )
     name = models.CharField(max_length=256, verbose_name='Название')
-    product_image = models.ImageField(
+    image = models.ImageField(
         upload_to='products/',
         null=True,
         blank=True,
@@ -39,33 +39,33 @@ class Product(BaseModel, models.Model):
     price = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Цена'
     )
-    price_currency = models.CharField(
+    priceCurrency = models.CharField(
         max_length=4,
         choices=CURRENCY_TYPE,
         default='RUB',
         verbose_name='Валюта',
     )
-    stock_quantity = models.PositiveIntegerField(
+    stockQuantity = models.PositiveIntegerField(
         verbose_name='Кол-во на складе'
     )
-    is_available = models.BooleanField(verbose_name='В наличии?')
+    isAvailable = models.BooleanField(verbose_name='В наличии?')
     brand = models.ForeignKey(
         'main.Brand',
         related_name='products',
         on_delete=models.CASCADE,
         verbose_name='Бренд',
     )
-    product_type = models.ForeignKey(
+    productType = models.ForeignKey(
         ProductType,
-        related_name='products_in_subtype',
+        related_name='products_in_type',
         on_delete=models.CASCADE,
         verbose_name='Тип продукта',
         null=True,
         blank=True,
     )
-    product_subtype = models.ForeignKey(
+    productSubtype = models.ForeignKey(
         ProductSubtype,
-        related_name='products_in_type',
+        related_name='products_in_subtype',
         on_delete=models.CASCADE,
         verbose_name='Подтип продукта',
         null=True,

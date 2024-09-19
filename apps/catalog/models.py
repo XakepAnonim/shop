@@ -21,7 +21,6 @@ class MainCategory(models.Model):
         blank=True,
         verbose_name='Изображение',
     )
-    description = models.TextField(blank=True, verbose_name='Описание')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -40,7 +39,7 @@ class SubCategory(models.Model):
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    main_category = models.ForeignKey(
+    mainCategory = models.ForeignKey(
         MainCategory,
         related_name='subcategories',
         on_delete=models.CASCADE,
@@ -58,7 +57,6 @@ class SubCategory(models.Model):
         blank=True,
         verbose_name='Изображение',
     )
-    description = models.TextField(blank=True, verbose_name='Описание')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -66,7 +64,7 @@ class SubCategory(models.Model):
         super(SubCategory, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.main_category} -> {self.name}'
+        return f'{self.mainCategory} -> {self.name}'
 
     def get_absolute_url(self):
         return reverse('admin:catalog_subcategory_change', args=[str(self.id)])
@@ -80,7 +78,7 @@ class ProductVariety(models.Model):
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    sub_category = models.ForeignKey(
+    subCategory = models.ForeignKey(
         SubCategory,
         related_name='product_varietys',
         on_delete=models.CASCADE,
@@ -98,7 +96,6 @@ class ProductVariety(models.Model):
         blank=True,
         verbose_name='Изображение',
     )
-    description = models.TextField(blank=True, verbose_name='Описание')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -106,7 +103,7 @@ class ProductVariety(models.Model):
         super(ProductVariety, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.sub_category} -> {self.name}'
+        return f'{self.subCategory} -> {self.name}'
 
     def get_absolute_url(self):
         return reverse(
@@ -122,16 +119,13 @@ class ProductType(models.Model):
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    product_variety = models.ForeignKey(
+    productVariety = models.ForeignKey(
         ProductVariety,
         related_name='product_types',
         on_delete=models.CASCADE,
         verbose_name='Разновидность продукта',
         null=True,
         blank=True,
-    )
-    products = models.ManyToManyField(
-        'products.Product', verbose_name='Товары'
     )
     name = models.CharField(max_length=256, verbose_name='Название типа')
     slug = models.SlugField(
@@ -143,7 +137,6 @@ class ProductType(models.Model):
         blank=True,
         verbose_name='Изображение',
     )
-    description = models.TextField(blank=True, verbose_name='Описание')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -151,7 +144,7 @@ class ProductType(models.Model):
         super(ProductType, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.product_variety} -> {self.name}'
+        return f'{self.productVariety} -> {self.name}'
 
     def get_absolute_url(self):
         return reverse('admin:catalog_producttype_change', args=[str(self.id)])
@@ -165,14 +158,11 @@ class ProductSubtype(models.Model):
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    product_type = models.ForeignKey(
+    productType = models.ForeignKey(
         ProductType,
         related_name='product_subtypes',
         on_delete=models.CASCADE,
         verbose_name='Тип продукта',
-    )
-    products = models.ManyToManyField(
-        'products.Product', verbose_name='Товары'
     )
     name = models.CharField(max_length=256, verbose_name='Название подтипа')
     slug = models.SlugField(
@@ -184,7 +174,6 @@ class ProductSubtype(models.Model):
         blank=True,
         verbose_name='Изображение',
     )
-    description = models.TextField(blank=True, verbose_name='Описание')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -192,7 +181,7 @@ class ProductSubtype(models.Model):
         super(ProductSubtype, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.product_type} -> {self.name}'
+        return f'{self.productType} -> {self.name}'
 
     def get_absolute_url(self):
         return reverse(

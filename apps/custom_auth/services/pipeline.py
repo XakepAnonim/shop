@@ -1,7 +1,8 @@
+from apps.custom_auth.services.session import create_user_session
 from apps.users.models import User
 
 
-def create_user(backend, response, *args, **kwargs):
+def create_user(request, backend, response, *args, **kwargs):
     email = response.get('email')
     first_name = response.get('given_name')
     last_name = response.get('family_name')
@@ -10,10 +11,11 @@ def create_user(backend, response, *args, **kwargs):
 
     user = User.objects.create_user(
         email=email,
-        first_name=first_name,
-        last_name=last_name,
+        firstName=first_name,
+        lastName=last_name,
         avatar=avatar,
-        approved_email=approved_email,
-        phone_number=None,
+        approvedEmail=approved_email,
+        phoneNumber=None,
     )
     user.has_usable_password()
+    create_user_session(request, user, **kwargs)

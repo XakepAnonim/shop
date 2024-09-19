@@ -10,14 +10,14 @@ class ProductAdmin(admin.ModelAdmin):
         'name',
         'sku',
         'price',
-        'price_currency',
-        'stock_quantity',
-        'is_available',
+        'priceCurrency',
+        'stockQuantity',
+        'isAvailable',
         'brand_display',
     )
-    list_filter = ('brand', 'price_currency', 'is_available')
+    list_filter = ('brand', 'priceCurrency', 'isAvailable')
     search_fields = ('name', 'sku', 'description')
-    readonly_fields = ('uuid', 'slug', 'created_at', 'updated_at')
+    readonly_fields = ('uuid', 'slug', 'createdAt', 'updatedAt')
     fieldsets = (
         (
             None,
@@ -26,23 +26,23 @@ class ProductAdmin(admin.ModelAdmin):
                     'uuid',
                     'slug',
                     'name',
-                    'product_image',
+                    'image',
                     'specs',
                     'description',
                     'price',
-                    'stock_quantity',
+                    'stockQuantity',
                     'brand',
                 )
             },
         ),
-        ('Important dates', {'fields': ('updated_at', 'created_at')}),
+        ('Important dates', {'fields': ('updatedAt', 'createdAt')}),
         (
             'Additional Info',
             {
                 'fields': (
                     'sku',
-                    'price_currency',
-                    'is_available',
+                    'priceCurrency',
+                    'isAvailable',
                 )
             },
         ),

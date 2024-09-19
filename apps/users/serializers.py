@@ -11,20 +11,20 @@ class AuthUserSerializer(serializers.ModelSerializer):
         fields = [
             'uuid',
             'email',
-            'first_name',
-            'last_name',
-            'phone_number',
+            'firstName',
+            'lastName',
+            'phoneNumber',
             'is_staff',
-            'date_of_birth',
+            'dateOfBirth',
             'avatar',
             'address',
-            'company_name',
-            'approved_phone',
-            'approved_email',
+            'company',
+            'approvedPhone',
+            'approvedEmail',
             'language',
             'permissions',
         ]
-        read_only_fields = ('uuid', 'approved_phone', 'approved_email')
+        read_only_fields = ('uuid', 'approvedPhone', 'approvedEmail')
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
@@ -35,13 +35,13 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         fields = [
             'uuid',
             'email',
-            'first_name',
-            'last_name',
-            'phone_number',
-            'date_of_birth',
+            'firstName',
+            'lastName',
+            'phoneNumber',
+            'dateOfBirth',
             'avatar',
             'address',
-            'company_name',
+            'company',
             'language',
         ]
         read_only_fields = ('uuid',)

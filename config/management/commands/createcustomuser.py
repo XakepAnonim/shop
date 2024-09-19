@@ -15,9 +15,9 @@ class Command(BaseCommand):
 
         if not User.objects.filter(email=email).exists():
             User.objects.create_superuser(
-                first_name=first_name,
-                last_name=last_name,
-                phone_number=phone_number,
+                firstName=first_name,
+                lastName=last_name,
+                phoneNumber=phone_number,
                 email=email,
                 password=password,
             )
