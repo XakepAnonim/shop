@@ -6,4 +6,5 @@ urlpatterns = [
     path('auth/', include('apps.custom_auth.urls')),
     path('test/', include('apps.test.urls')),
     path('products/', include('apps.products.urls')),
+    path('catalog/', include('apps.catalog.urls')),
 ]
