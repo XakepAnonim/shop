@@ -4,7 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.users.serializers import AuthUserSerializer, UpdateUserSerializer
+from apps.users.models import UserSession
+from apps.users.serializers import (
+    AuthUserSerializer,
+    UpdateUserSerializer,
+)
 from apps.users.services.user import UserService
 
 
@@ -30,3 +34,25 @@ def manage_user_handler(request: Request) -> Response:
         return get_user(request, user)
     if request.method == 'PATCH':
         return update_data_user(request, user)
+
+
+@api_view(['GET'])
+def get_user_sessions_handler(request):
+    sessions = UserSession.objects.filter(user=request.user)
+    for session in sessions:
+        session_data = {
+            'authSSID': session.authSSID,
+            'placeID': {
+                'deviceType': session.deviceType,
+                'deviceName': session.deviceName,
+                'os': session.os,
+                'browser': session.browser,
+                'ip': session.ip,
+                'cityName': '',
+                'installationId': None,
+            },
+            'createdAt': session.createdAt.isoformat(),
+            'country': session.country,
+            'isCurrent': session.isCurrent,
+        }
+        return Response({'data': session_data}, status=status.HTTP_200_OK)

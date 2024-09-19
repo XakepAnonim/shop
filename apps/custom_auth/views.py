@@ -14,6 +14,7 @@ from apps.custom_auth.serializers import (
 )
 from apps.custom_auth.services.code import send_verification_code
 from apps.custom_auth.services.contact import Contact
+from apps.custom_auth.services.session import create_user_session
 
 
 @api_view(['POST'])
@@ -32,13 +33,16 @@ def send_code_handler(request: Request) -> Response:
 
 
 @api_view(['POST'])
-def verify_code_handler(request: Request) -> Response:
+def verify_code_handler(request: Request, **kwargs) -> Response:
     """
     Функция для проверки кода подтверждения.
     """
     serializer = VerifyOTPSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     tokens = serializer.save()
+    create_user_session(
+        request, serializer.validated_data['user'], **kwargs
+    )
     return Response({'data': tokens}, status=status.HTTP_200_OK)
 
 

@@ -22,9 +22,9 @@ class UserManager(BaseUserManager):
     def create_user(
         self,
         email,
-        first_name,
-        last_name,
-        phone_number,
+        firstName,
+        lastName,
+        phoneNumber,
         password=None,
         **extra_fields,
     ):
@@ -33,9 +33,9 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(
             email=email,
-            first_name=first_name,
-            last_name=last_name,
-            phone_number=phone_number,
+            firstName=firstName,
+            lastName=lastName,
+            phoneNumber=phoneNumber,
             **extra_fields,
         )
         user.set_password(password)
@@ -45,20 +45,20 @@ class UserManager(BaseUserManager):
     def create_superuser(
         self,
         email,
-        first_name,
-        last_name,
-        phone_number,
+        firstName,
+        lastName,
+        phoneNumber,
         password=None,
         **extra_fields,
     ):
-        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('isStaff', True)
         extra_fields.setdefault('is_superuser', True)
 
         return self.create_user(
             email,
-            first_name,
-            last_name,
-            phone_number,
+            firstName,
+            lastName,
+            phoneNumber,
             password,
             **extra_fields,
         )
@@ -88,30 +88,28 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         blank=True,
         null=True,
     )
-    first_name = models.CharField(
+    firstName = models.CharField(
         max_length=50,
         verbose_name='Имя',
         blank=True,
         null=True,
     )
-    last_name = models.CharField(
+    lastName = models.CharField(
         max_length=50,
         verbose_name='Фамилия',
         blank=True,
         null=True,
     )
-    phone_number = PhoneNumberField(
+    phoneNumber = PhoneNumberField(
         max_length=15,
         verbose_name='Номер телефона',
         unique=True,
         blank=True,
         null=True,
     )
-    is_staff = models.BooleanField(
-        default=False, verbose_name='Администратор?'
-    )
-    is_company = models.BooleanField(default=False, verbose_name='Компания?')
-    date_of_birth = models.DateField(
+    isStaff = models.BooleanField(default=False, verbose_name='Администратор?')
+    isCompany = models.BooleanField(default=False, verbose_name='Компания?')
+    dateOfBirth = models.DateField(
         null=True, blank=True, verbose_name='Дата рождения'
     )
     avatar = models.ImageField(
@@ -125,11 +123,11 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         blank=True,
         verbose_name='Компания',
     )
-    secret_key = models.CharField(max_length=32, null=True, blank=True)
-    approved_phone = models.BooleanField(
+    secretKey = models.CharField(max_length=32, null=True, blank=True)
+    approvedPhone = models.BooleanField(
         default=False, verbose_name='Подтвержден номер телефона?'
     )
-    approved_email = models.BooleanField(
+    approvedEmail = models.BooleanField(
         default=False, verbose_name='Подтверждена почта?'
     )
     language = models.CharField(
@@ -144,15 +142,30 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
+    REQUIRED_FIELDS = ['firstName', 'lastName', 'phoneNumber']
 
     objects = UserManager()
 
     def __str__(self):
-        return ''
+        if self.email:
+            return self.email
+        elif self.phoneNumber:
+            return str(self.phoneNumber)
+        elif self.firstName or self.lastName:
+            return f"{self.firstName or ''} {self.lastName or ''}".strip()
+        else:
+            return str(self.uuid)
+
+    @property
+    def username(self):
+        return f'{self.firstName} {self.lastName}'
+
+    @property
+    def is_staff(self):
+        return self.isStaff
 
     def clean(self):
-        if self.is_staff and self.is_company:
+        if self.isStaff and self.isCompany:
             raise ValidationError(
                 'Пользователь не может быть администратором и '
                 'компанией одновременно'
@@ -170,3 +183,33 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class UserSession(BaseModel):
+    authSSID = models.CharField(
+        max_length=255, unique=True, verbose_name='Auth SSID'
+    )
+    deviceType = models.CharField(max_length=50, verbose_name='Тип устройства')
+    deviceName = models.CharField(
+        max_length=255, verbose_name='Имя устройства'
+    )
+    os = models.CharField(max_length=50, verbose_name='Операционная система')
+    browser = models.CharField(max_length=50, verbose_name='Браузер')
+    ip = models.CharField(max_length=20, verbose_name='IP-адрес')
+    cityName = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(
+        max_length=10, verbose_name='Страна', null=True, blank=True
+    )
+    isCurrent = models.BooleanField(default=True, verbose_name='Активен?')
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='sessions'
+    )
+    userAgent = models.CharField(max_length=255, verbose_name='User Agent')
+
+    def __str__(self):
+        return f'{self.user.email} - {self.deviceType} ({self.ip})'
+
+    class Meta:
+        verbose_name = 'Сеанс пользователя'
+        verbose_name_plural = 'Сеансы пользователей'
