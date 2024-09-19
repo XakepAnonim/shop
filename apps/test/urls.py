@@ -9,168 +9,136 @@ from apps.catalog.models import (
     ProductType,
     ProductSubtype,
 )
-from apps.main.models import (
-    Company,
-    Brand,
-)
+from apps.main.models import Company, Brand
 from apps.products.models import Product, CharacteristicGroup, Characteristic
-
-
-def test(request):
-    # Создаем компанию
-    company = Company.objects.create(
-        name='Компания 1',
-        description='Описание компании 1',
-    )
-
-    # Создаем бренд
-    brand = Brand.objects.create(
-        name='Бренд 1',
-        company=company,
-    )
-
-    # Создаем продукт
-    product = Product.objects.create(
-        name='Продукт 1',
-        product_image=None,
-        specs='Тех. характеристики продукта 1',
-        description='Описание продукта 1',
-        price=100.00,
-        price_currency='RUB',
-        stock_quantity=10,
-        is_available=True,
-        brand=brand,
-    )
-
-    # Создаем группу характеристик
-    characteristic_group = CharacteristicGroup.objects.create(
-        name='Группа характеристик 1',
-        product=product,
-    )
-
-    # Создаем характеристику
-    characteristic = Characteristic.objects.create(
-        group=characteristic_group,
-        title='Характеристика 1',
-        value='Значение характеристики 1',
-    )
-
-    # Связываем характеристику с группой
-    characteristic_group.characteristics.add(characteristic)
-
-    return HttpResponse('Объекты успешно созданы')
 
 
 @transaction.atomic
 def catalog(request):
-    # Создаем компанию
-    company = Company.objects.create(
+    # Получаем или создаем компанию
+    company, _ = Company.objects.get_or_create(
         name='Компания 1',
-        description='Описание компании 1',
+        defaults={'description': 'Описание компании 1'},
     )
 
-    # Создаем бренд
-    brand = Brand.objects.create(
+    # Получаем или создаем бренд
+    brand, _ = Brand.objects.get_or_create(
         name='Бренд 1',
         company=company,
     )
 
-    # Создаем продукт
-    product = Product.objects.create(
-        name='Панель',
-        product_image=None,
-        specs='Панель',
-        description='Панель',
-        price=100.00,
-        price_currency='RUB',
-        stock_quantity=10,
-        is_available=True,
-        brand=brand,
-    )
-    product1 = Product.objects.create(
-        name='Шкаф',
-        product_image=None,
-        specs='Шкаф',
-        description='Шкаф',
-        price=100.00,
-        price_currency='RUB',
-        stock_quantity=10,
-        is_available=True,
-        brand=brand,
-    )
+    # Кэширование продуктов для избежания дублирующих запросов
+    existing_products = {
+        p.name: p for p in Product.objects.filter(name__in=['Панель', 'Шкаф'])
+    }
+    products_data = [
+        {'name': 'Панель', 'specs': 'Панель', 'description': 'Панель'},
+        {'name': 'Шкаф', 'specs': 'Шкаф', 'description': 'Шкаф'},
+    ]
+    products = []
+    for data in products_data:
+        if data['name'] in existing_products:
+            product = existing_products[data['name']]
+        else:
+            product = Product.objects.create(
+                name=data['name'],
+                image=None,
+                specs=data['specs'],
+                description=data['description'],
+                price=100.00,
+                priceCurrency='RUB',
+                stockQuantity=10,
+                isAvailable=True,
+                brand=brand,
+            )
+        products.append(product)
 
-    # Создаем группу характеристик
-    characteristic_group = CharacteristicGroup.objects.create(
+    # Кэширование групп характеристик
+    characteristic_group, _ = CharacteristicGroup.objects.get_or_create(
         name='Группа характеристик 1',
-        product=product,
+        product=products[0],
     )
 
-    # Создаем характеристику
-    characteristic = Characteristic.objects.create(
+    # Кэширование характеристик
+    characteristic, _ = Characteristic.objects.get_or_create(
         group=characteristic_group,
         title='Характеристика 1',
-        value='Значение характеристики 1',
+        defaults={'value': 'Значение характеристики 1'},
     )
 
-    # Связываем характеристику с группой
-    characteristic_group.characteristics.add(characteristic)
-
-    # Создаем главную категорию
-    main_category = MainCategory.objects.create(
+    # Главная категория и подкатегория
+    main_category, _ = MainCategory.objects.get_or_create(
         name='Бытовая техника',
-        description='Бытовая техника',
     )
 
-    # Создаем подкатегорию
-    sub_category = SubCategory.objects.create(
-        main_category=main_category,
+    sub_category, _ = SubCategory.objects.get_or_create(
+        mainCategory=main_category,
         name='Встраиваемая техника',
-        description='Встраиваемая техника',
     )
-    main_category.subcategories.add(sub_category)
 
-    # Создаем разновидность техники
-    product_variety = ProductVariety.objects.create(
-        sub_category=sub_category,
-        name='Варочные панели',
-        description='Варочные панели',
-    )
-    product_variety1 = ProductVariety.objects.create(
-        sub_category=sub_category,
-        name='Духовные шкафы',
-        description='Духовные шкафы',
-    )
-    sub_category.product_varietys.add(product_variety)
-    sub_category.product_varietys.add(product_variety1)
+    # Кэширование разновидностей техники
+    existing_varieties = {
+        v.name: v
+        for v in ProductVariety.objects.filter(
+            name__in=['Варочные панели', 'Духовные шкафы']
+        )
+    }
+    product_varieties_data = ['Варочные панели', 'Духовные шкафы']
+    product_varieties = []
+    for variety_name in product_varieties_data:
+        if variety_name in existing_varieties:
+            product_variety = existing_varieties[variety_name]
+        else:
+            product_variety = ProductVariety.objects.create(
+                subCategory=sub_category,
+                name=variety_name,
+            )
+        product_varieties.append(product_variety)
 
-    # Создаем тип техники
-    product_type = ProductType.objects.create(
-        product_variety=product_variety,
-        name='Варочные панели электрические',
-        description='Варочные панели электрические',
-    )
-    product_type1 = ProductType.objects.create(
-        product_variety=product_variety,
-        name='Духовные шкафы электрические',
-        description='Духовные шкафы электрические',
-    )
-    product_variety.product_types.add(product_type)
-    product_type.products.add(product)
-    product_variety1.product_types.add(product_type1)
+    # Кэширование типов техники
+    existing_types = {
+        t.name: t
+        for t in ProductType.objects.filter(
+            name__in=[
+                'Варочные панели электрические',
+                'Духовные шкафы электрические',
+            ]
+        )
+    }
+    product_types_data = [
+        {
+            'name': 'Варочные панели электрические',
+            'variety': product_varieties[0],
+        },
+        {
+            'name': 'Духовные шкафы электрические',
+            'variety': product_varieties[1],
+        },
+    ]
+    product_types = []
+    for data in product_types_data:
+        if data['name'] in existing_types:
+            product_type = existing_types[data['name']]
+        else:
+            product_type = ProductType.objects.create(
+                productVariety=data['variety'],
+                name=data['name'],
+            )
+        product_types.append(product_type)
 
-    # Создаем подтип продукта
-    product_subtype = ProductSubtype.objects.create(
-        product_type=product_type,
+    # Создаем или получаем подтип продукта
+    product_subtype, _ = ProductSubtype.objects.get_or_create(
+        productType=product_types[0],
         name='Подтип продукта 1',
-        description='Описание подтипа продукта 1',
     )
-    product_type1.product_subtypes.add(product_subtype)
-    product_subtype.products.add(product1)
+
+    # Добавляем продукты в соответствующие типы/подтипы
+    product_types[0].products_in_type.add(products[0])
+    product_subtype.products_in_subtype.add(products[1])
 
     return HttpResponse('Каталог успешно создан')
 
 
 urlpatterns = [
-    path('test', test),
     path('catalog', catalog),
 ]
