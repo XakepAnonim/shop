@@ -43,14 +43,14 @@ class ProductVarietyInline(admin.TabularInline):
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'main_category',
+        'mainCategory',
         'slug',
         'uuid',
         'product_varietys_display',
     )
     search_fields = (
         'name',
-        'main_category__name',
+        'mainCategory__name',
     )
     readonly_fields = ('uuid', 'slug')
     inlines = [ProductVarietyInline]
@@ -71,12 +71,12 @@ class SubCategoryAdmin(admin.ModelAdmin):
 class ProductVarietyAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'sub_category',
+        'subCategory',
         'slug',
         'uuid',
         'product_types_display',
     )
-    search_fields = ('name', 'sub_category__name')
+    search_fields = ('name', 'subCategory__name')
     readonly_fields = ('uuid', 'slug')
 
     def product_types_display(self, obj):
@@ -100,12 +100,12 @@ class ProductSubtypeInline(admin.TabularInline):
 class ProductTypeAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'product_variety',
+        'productVariety',
         'slug',
         'uuid',
         'product_subtypes_display',
     )
-    search_fields = ('name', 'product_variety__name')
+    search_fields = ('name', 'productVariety__name')
     readonly_fields = ('uuid', 'slug')
     inlines = [ProductSubtypeInline]
 
@@ -123,8 +123,8 @@ class ProductTypeAdmin(admin.ModelAdmin):
 
 @admin.register(ProductSubtype)
 class ProductSubtypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product_type', 'slug', 'uuid', 'products_display')
-    search_fields = ('name', 'product_type__name')
+    list_display = ('name', 'productType', 'slug', 'uuid', 'products_display')
+    search_fields = ('name', 'productType__name')
     readonly_fields = ('uuid', 'slug')
 
     def products_display(self, obj):
@@ -134,6 +134,6 @@ class ProductSubtypeAdmin(admin.ModelAdmin):
                 products.get_absolute_url(),
                 products.name,
             )
-            for products in obj.products.all()
+            for products in obj.products_in_subtype.all()
         ]
         return format_html(', '.join(links))
