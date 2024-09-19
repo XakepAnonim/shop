@@ -13,7 +13,7 @@ def generate_otp():
     Генерация кода и его секретного ключа.
     """
     secret = pyotp.random_base32()
-    totp = pyotp.TOTP(secret, interval=300)
+    totp = pyotp.TOTP(secret, interval=600)
     otp_code = totp.now()
     print('Generated code: ' + otp_code)
     print('Generated key: ' + secret)

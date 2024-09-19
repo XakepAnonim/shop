@@ -20,7 +20,7 @@ class VerifyOTPSerializer(serializers.Serializer):
         code = data.get('code')
         user = Contact.check_contact_info(contact, serializers)
 
-        totp = TOTP(user.secret_key, interval=300)
+        totp = TOTP(user.secret_key, interval=600)
         if not totp.verify(code):
             raise serializers.ValidationError(
                 {'data': 'Неверный код подтверждения'}
@@ -104,7 +104,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         code = data.get('code')
         user = Contact.check_contact_info(contact, serializers)
 
-        totp = TOTP(user.secret_key, interval=300)
+        totp = TOTP(user.secret_key, interval=600)
         if not totp.verify(code):
             raise serializers.ValidationError(
                 {'data': 'Неверный код подтверждения'}
