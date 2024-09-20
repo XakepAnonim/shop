@@ -56,3 +56,16 @@ brand_data = {
     'description': 'Test Brand Description',
 }
 
+updated_user_data = {
+    'firstName': 'Updated First Name',
+    'lastName': 'Updated Last Name',
+}
+
+user_session_data = {
+    'authSSID': 'test-auth-ssid',
+    'deviceType': 'desktop',
+    'deviceName': 'Test Device',
+    'os': 'Windows',
+    'browser': 'Chrome',
+    'ip': '127.0.0.1',
+}

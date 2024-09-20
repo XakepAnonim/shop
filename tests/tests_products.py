@@ -68,8 +68,6 @@ class ProductAPITests(APITestCase):
             f'{self.base_url}products/{self.product.uuid}/{self.product.slug}/'
         )
         response = self.client.get(url)
-        print(response.data['data'])
-        print(output_product_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['data'], output_product_data)
 
