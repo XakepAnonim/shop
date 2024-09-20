@@ -124,11 +124,12 @@ def get_user_sessions_handler(request: Request) -> Response:
 @permission_classes([IsAuthenticated])
 def close_session_handler(
     request: Request, authSSID: uuid.uuid4().hex
-) -> None:
+) -> Response:
     """
     Отключение сеанса пользователя
     """
     SessionService.delete_session(authSSID)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @extend_schema(
@@ -139,8 +140,9 @@ def close_session_handler(
 )
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def close_sessions_handler(request: Request) -> None:
+def close_sessions_handler(request: Request) -> Response:
     """
     Отключение неактивных сеансов пользователя
     """
     SessionService.delete_sessions()
+    return Response(status=status.HTTP_204_NO_CONTENT)
