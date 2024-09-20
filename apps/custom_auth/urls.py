@@ -8,9 +8,9 @@ from apps.custom_auth.views import (
 )
 
 urlpatterns = [
-    path('send', send_code_handler),
-    path('verify', verify_code_handler),
-    path('login', login_password_handler),
-    path('password', change_password_handler),
+    path('send/', send_code_handler),
+    path('verify/', verify_code_handler),
+    path('login/', login_password_handler),
+    path('password/', change_password_handler),
     path('social/', include('social_django.urls', namespace='social')),
 ]

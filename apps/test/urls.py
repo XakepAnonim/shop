@@ -140,5 +140,5 @@ def catalog(request):
 
 
 urlpatterns = [
-    path('catalog', catalog),
+    path('catalog/', catalog),
 ]
