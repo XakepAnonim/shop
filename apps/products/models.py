@@ -18,6 +18,10 @@ CURRENCY_TYPE = (
 
 
 class Product(BaseModel):
+    """
+    Модель товара
+    """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
@@ -49,6 +53,7 @@ class Product(BaseModel):
         verbose_name='Кол-во на складе'
     )
     isAvailable = models.BooleanField(verbose_name='В наличии?')
+
     brand = models.ForeignKey(
         'main.Brand',
         related_name='products',
@@ -108,13 +113,18 @@ class Product(BaseModel):
 
 
 class CharacteristicGroup(models.Model):
+    """
+    Модель группы характеристик товара
+    """
+
+    name = models.CharField(max_length=256, verbose_name='Название группы')
+
     product = models.ForeignKey(
         Product,
         related_name='characteristic_groups',
         on_delete=models.CASCADE,
         verbose_name='Продукт',
     )
-    name = models.CharField(max_length=256, verbose_name='Название группы')
 
     def __str__(self):
         return self.name
@@ -130,16 +140,21 @@ class CharacteristicGroup(models.Model):
 
 
 class Characteristic(models.Model):
+    """
+    Модель характеристики товара
+    """
+
+    title = models.CharField(
+        max_length=256, verbose_name='Название характеристики'
+    )
+    value = models.CharField(max_length=1024, verbose_name='Значение')
+
     group = models.ForeignKey(
         CharacteristicGroup,
         related_name='characteristics',
         on_delete=models.CASCADE,
         verbose_name='Группа характеристик',
     )
-    title = models.CharField(
-        max_length=256, verbose_name='Название характеристики'
-    )
-    value = models.CharField(max_length=1024, verbose_name='Значение')
 
     def __str__(self):
         return f'{self.title}: {self.value}'

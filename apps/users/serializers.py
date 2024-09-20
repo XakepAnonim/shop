@@ -4,6 +4,10 @@ from apps.users.models import User
 
 
 class AuthUserSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для отображения профиля пользователя
+    """
+
     avatar = serializers.ImageField()
 
     class Meta:
@@ -14,7 +18,7 @@ class AuthUserSerializer(serializers.ModelSerializer):
             'firstName',
             'lastName',
             'phoneNumber',
-            'is_staff',
+            'isStaff',
             'dateOfBirth',
             'avatar',
             'address',
@@ -28,6 +32,10 @@ class AuthUserSerializer(serializers.ModelSerializer):
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для обновления профиля пользователя
+    """
+
     avatar = serializers.ImageField()
 
     class Meta:

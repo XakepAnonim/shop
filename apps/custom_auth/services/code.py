@@ -10,7 +10,7 @@ from apps.users.services.user import UserService
 
 def generate_otp():
     """
-    Генерация кода и его секретного ключа.
+    Генерация кода и его секретного ключа
     """
     secret = pyotp.random_base32()
     totp = pyotp.TOTP(secret, interval=600)
@@ -21,6 +21,9 @@ def generate_otp():
 
 
 async def send_verification_code(contact_info, password=None):
+    """
+    Отправление кода на телефон или почту
+    """
     otp_code, secret = generate_otp()
     message = f'Ваш код подтверждения: {otp_code}'
 

@@ -3,9 +3,9 @@ from django.core.mail import send_mail
 from config import settings
 
 
-def send_email_verification(email, message):
+def send_email_verification(email: str, message: str) -> dict:
     """
-    Отправка email с кодом подтверждения.
+    Отправка на почту с кодом подтверждения
     """
     subject = 'Код подтверждения'
     try:

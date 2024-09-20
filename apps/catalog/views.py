@@ -1,7 +1,9 @@
-import uuid
+import uuid as py_uuid
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -18,7 +20,7 @@ from apps.catalog.services.catalog import (
     get_product_variety,
     get_product_type,
     get_product_subtype,
-    get_all_category,
+    get_all_categories,
 )
 
 CATEGORY_TYPES = {
@@ -30,10 +32,20 @@ CATEGORY_TYPES = {
 }
 
 
+@extend_schema(
+    responses=MainCategorySerializer,  # Указываем тип ответа
+    description='Получение каталога товаров',
+    summary='Получение каталога товаров',
+    tags=['Каталог'],
+)
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_category_handler(
-    request: Request, uuid: uuid.UUID, slug: str
+    request: Request, uuid: py_uuid.uuid4, slug: str
 ) -> Response:
+    """
+    Обработчик на получение категорий
+    """
     category_type = request.query_params.get('type')
 
     if not category_type or category_type not in CATEGORY_TYPES:
@@ -50,8 +62,18 @@ def get_category_handler(
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    responses=MainCategorySerializer(many=True),
+    description='Получение конкретной категории по UUID и slug',
+    summary='Получение конкретной категории по UUID и slug',
+    tags=['Каталог'],
+)
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_catalog_handler(request: Request) -> Response:
-    categorys = get_all_category()
-    serializer = MainCategorySerializer(categorys, many=True)
+    """
+    Обработчик на получение каталога
+    """
+    categories = get_all_categories()
+    serializer = MainCategorySerializer(categories, many=True)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)

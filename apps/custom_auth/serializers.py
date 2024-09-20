@@ -9,6 +9,10 @@ from apps.custom_auth.services.contact import Contact
 
 
 class VerifyOTPSerializer(serializers.Serializer):
+    """
+    Сериализатор верификации кода
+    """
+
     contact = serializers.CharField()
     code = serializers.CharField(max_length=6)
 
@@ -20,7 +24,7 @@ class VerifyOTPSerializer(serializers.Serializer):
         code = data.get('code')
         user = Contact.check_contact_info(contact, serializers)
 
-        totp = TOTP(user.secret_key, interval=600)
+        totp = TOTP(user.secretKey, interval=600)
         if not totp.verify(code):
             raise serializers.ValidationError(
                 {'data': 'Неверный код подтверждения'}
@@ -51,15 +55,27 @@ class VerifyOTPSerializer(serializers.Serializer):
 
 
 class ContactSerializer(serializers.Serializer):
+    """
+    Сериализатор контакта
+    """
+
     contact = serializers.CharField()
 
 
 class ContactInfoSerializer(serializers.Serializer):
+    """
+    Сериализатор значений контакта
+    """
+
     type = serializers.CharField()
     value = serializers.CharField()
 
 
 class PasswordSerializer(serializers.Serializer):
+    """
+    Сериализатор авторизации через пароль
+    """
+
     contact = serializers.CharField()
     password = serializers.CharField(min_length=8, max_length=16)
 
@@ -72,6 +88,7 @@ class PasswordSerializer(serializers.Serializer):
 
         phone_number = None
         email = None
+        user = None
 
         if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', contact):
             email = contact
@@ -92,6 +109,10 @@ class PasswordSerializer(serializers.Serializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Сериализатор смены пароля
+    """
+
     contact = serializers.CharField()
     code = serializers.CharField(max_length=6)
     new_password = serializers.CharField(min_length=8, max_length=16)
@@ -104,7 +125,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         code = data.get('code')
         user = Contact.check_contact_info(contact, serializers)
 
-        totp = TOTP(user.secret_key, interval=600)
+        totp = TOTP(user.secretKey, interval=600)
         if not totp.verify(code):
             raise serializers.ValidationError(
                 {'data': 'Неверный код подтверждения'}

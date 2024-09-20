@@ -19,6 +19,11 @@ ROLES = (
 
 
 class UserManager(BaseUserManager):
+    """
+    Менеджер пользователей, который наследуется от BaseUserManager.
+    Обеспечивает создание пользователей и суперпользователей.
+    """
+
     def create_user(
         self,
         email,
@@ -65,6 +70,10 @@ class UserManager(BaseUserManager):
 
 
 class Permission(models.Model):
+    """
+    Модель прав
+    """
+
     name = models.CharField(max_length=250)
     codename = models.CharField(max_length=250)
     role = models.CharField(max_length=255, choices=ROLES)
@@ -78,6 +87,10 @@ class Permission(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin, BaseModel):
+    """
+    Модель пользователя
+    """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
@@ -107,29 +120,22 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         blank=True,
         null=True,
     )
-    isStaff = models.BooleanField(default=False, verbose_name='Администратор?')
-    isCompany = models.BooleanField(default=False, verbose_name='Компания?')
-    dateOfBirth = models.DateField(
-        null=True, blank=True, verbose_name='Дата рождения'
-    )
     avatar = models.ImageField(
         upload_to='avatars/', null=True, blank=True, verbose_name='Фото'
     )
-    address = models.TextField(null=True, blank=True, verbose_name='Адрес')
-    company = models.OneToOneField(
-        Company,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name='Компания',
-    )
-    secretKey = models.CharField(max_length=32, null=True, blank=True)
+    isStaff = models.BooleanField(default=False, verbose_name='Администратор?')
+    isCompany = models.BooleanField(default=False, verbose_name='Компания?')
     approvedPhone = models.BooleanField(
         default=False, verbose_name='Подтвержден номер телефона?'
     )
     approvedEmail = models.BooleanField(
         default=False, verbose_name='Подтверждена почта?'
     )
+    dateOfBirth = models.DateField(
+        null=True, blank=True, verbose_name='Дата рождения'
+    )
+    address = models.TextField(null=True, blank=True, verbose_name='Адрес')
+    secretKey = models.CharField(max_length=32, null=True, blank=True)
     language = models.CharField(
         max_length=10,
         choices=[('en', 'English'), ('ru', 'Russian')],
@@ -137,6 +143,13 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         verbose_name='Язык',
     )
 
+    company = models.OneToOneField(
+        Company,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Компания',
+    )
     permissions = models.ManyToManyField(
         Permission, verbose_name='Права', blank=True
     )
@@ -186,6 +199,10 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
 
 
 class UserSession(BaseModel):
+    """
+    Модель сеанса пользователя
+    """
+
     authSSID = models.CharField(
         max_length=255, unique=True, verbose_name='Auth SSID'
     )
@@ -201,11 +218,11 @@ class UserSession(BaseModel):
         max_length=10, verbose_name='Страна', null=True, blank=True
     )
     isCurrent = models.BooleanField(default=True, verbose_name='Активен?')
+    userAgent = models.CharField(max_length=255, verbose_name='User Agent')
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='sessions'
     )
-    userAgent = models.CharField(max_length=255, verbose_name='User Agent')
 
     def __str__(self):
         return f'{self.user.email} - {self.deviceType} ({self.ip})'

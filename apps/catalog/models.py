@@ -6,14 +6,18 @@ from unidecode import unidecode
 
 
 class MainCategory(models.Model):
+    """
+    Модель главной категории
+    """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    name = models.CharField(
-        max_length=256, verbose_name='Название главной категории'
-    )
     slug = models.SlugField(
         max_length=256, unique=True, blank=True, verbose_name='Slug'
+    )
+    name = models.CharField(
+        max_length=256, verbose_name='Название главной категории'
     )
     image = models.ImageField(
         upload_to='main_category/',
@@ -36,26 +40,31 @@ class MainCategory(models.Model):
 
 
 class SubCategory(models.Model):
+    """
+    Модель подкатегории
+    """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    mainCategory = models.ForeignKey(
-        MainCategory,
-        related_name='subcategories',
-        on_delete=models.CASCADE,
-        verbose_name='Главная категория',
+    slug = models.SlugField(
+        max_length=256, unique=True, blank=True, verbose_name='Slug'
     )
     name = models.CharField(
         max_length=256, verbose_name='Название подкатегории'
-    )
-    slug = models.SlugField(
-        max_length=256, unique=True, blank=True, verbose_name='Slug'
     )
     image = models.ImageField(
         upload_to='sub_category/',
         null=True,
         blank=True,
         verbose_name='Изображение',
+    )
+
+    mainCategory = models.ForeignKey(
+        MainCategory,
+        related_name='subcategories',
+        on_delete=models.CASCADE,
+        verbose_name='Главная категория',
     )
 
     def save(self, *args, **kwargs):
@@ -75,26 +84,31 @@ class SubCategory(models.Model):
 
 
 class ProductVariety(models.Model):
+    """
+    Модель разновидности товара
+    """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    subCategory = models.ForeignKey(
-        SubCategory,
-        related_name='product_varietys',
-        on_delete=models.CASCADE,
-        verbose_name='Подкатегория',
+    slug = models.SlugField(
+        max_length=256, unique=True, blank=True, verbose_name='Slug'
     )
     name = models.CharField(
         max_length=256, verbose_name='Название разновидности'
-    )
-    slug = models.SlugField(
-        max_length=256, unique=True, blank=True, verbose_name='Slug'
     )
     image = models.ImageField(
         upload_to='product_type/',
         null=True,
         blank=True,
         verbose_name='Изображение',
+    )
+
+    subCategory = models.ForeignKey(
+        SubCategory,
+        related_name='product_varietys',
+        on_delete=models.CASCADE,
+        verbose_name='Подкатегория',
     )
 
     def save(self, *args, **kwargs):
@@ -116,9 +130,24 @@ class ProductVariety(models.Model):
 
 
 class ProductType(models.Model):
+    """
+    Модель типа товара
+    """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
+    slug = models.SlugField(
+        max_length=256, unique=True, blank=True, verbose_name='Slug'
+    )
+    name = models.CharField(max_length=256, verbose_name='Название типа')
+    image = models.ImageField(
+        upload_to='product_type/',
+        null=True,
+        blank=True,
+        verbose_name='Изображение',
+    )
+
     productVariety = models.ForeignKey(
         ProductVariety,
         related_name='product_types',
@@ -126,16 +155,6 @@ class ProductType(models.Model):
         verbose_name='Разновидность продукта',
         null=True,
         blank=True,
-    )
-    name = models.CharField(max_length=256, verbose_name='Название типа')
-    slug = models.SlugField(
-        max_length=256, unique=True, blank=True, verbose_name='Slug'
-    )
-    image = models.ImageField(
-        upload_to='product_type/',
-        null=True,
-        blank=True,
-        verbose_name='Изображение',
     )
 
     def save(self, *args, **kwargs):
@@ -155,24 +174,29 @@ class ProductType(models.Model):
 
 
 class ProductSubtype(models.Model):
+    """
+    Модель подтипа товара
+    """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    productType = models.ForeignKey(
-        ProductType,
-        related_name='product_subtypes',
-        on_delete=models.CASCADE,
-        verbose_name='Тип продукта',
-    )
-    name = models.CharField(max_length=256, verbose_name='Название подтипа')
     slug = models.SlugField(
         max_length=256, unique=True, blank=True, verbose_name='Slug'
     )
+    name = models.CharField(max_length=256, verbose_name='Название подтипа')
     image = models.ImageField(
         upload_to='product_subtype/',
         null=True,
         blank=True,
         verbose_name='Изображение',
+    )
+
+    productType = models.ForeignKey(
+        ProductType,
+        related_name='product_subtypes',
+        on_delete=models.CASCADE,
+        verbose_name='Тип продукта',
     )
 
     def save(self, *args, **kwargs):

@@ -21,10 +21,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'social_django',
     'rest_framework',
     'rest_framework_simplejwt',
     'query_counter',
+    'drf_spectacular',
+
     'config',
     'apps.users',
     'apps.custom_auth',
@@ -75,6 +78,8 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'users.User'
 
+APPEND_SLASH = True
+
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
@@ -99,6 +104,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 LANGUAGE_CODE = 'ru'
@@ -162,6 +168,31 @@ LOGGING = {
         'handlers': ['console'],
         'level': 'INFO',
     },
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Shop',
+    'VERSION': '0.1.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_SETTINGS': {
+        'filter': True,
+        'operationsSorter': 'method',
+    },
+    'COMPONENT_SPLIT_REQUEST': True,
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            },
+        }
+    },
+    'SECURITY': [
+        {
+            'BearerAuth': [],
+        },
+    ],
 }
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ['CLIENT_ID']
