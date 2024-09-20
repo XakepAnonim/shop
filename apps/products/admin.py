@@ -55,11 +55,6 @@ class ProductAdmin(admin.ModelAdmin):
 
     brand_display.short_description = 'Бренд'
 
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return self.readonly_fields + ('sku',)
-        return self.readonly_fields
-
 
 @admin.register(CharacteristicGroup)
 class CharacteristicGroupAdmin(admin.ModelAdmin):

@@ -4,8 +4,6 @@ from apps.users.models import User
 
 
 class Command(BaseCommand):
-    help = 'Create a superuser with predefined data'
-
     def handle(self, *args, **kwargs):
         first_name = 'admin'
         last_name = 'admin'
