@@ -7,6 +7,7 @@ from unidecode import unidecode
 
 from apps.catalog.models import ProductType, ProductSubtype
 from apps.models import BaseModel
+from apps.users.models import User
 
 CURRENCY_TYPE = (
     ('RUB', 'RUB'),
@@ -41,7 +42,7 @@ class Product(BaseModel):
     description = models.TextField(max_length=1500, verbose_name='Описание')
     sku = models.PositiveBigIntegerField(unique=True, verbose_name='Артикул')
     price = models.DecimalField(
-        max_digits=7, decimal_places=2, verbose_name='Цена'
+        max_digits=7, decimal_places=0, verbose_name='Цена'
     )
     priceCurrency = models.CharField(
         max_length=4,
@@ -162,3 +163,46 @@ class Characteristic(models.Model):
     class Meta:
         verbose_name = 'Характеристика'
         verbose_name_plural = 'Характеристики'
+
+
+class WishlistProduct(BaseModel):
+    """
+    Модель желаемых товаров пользователя
+    """
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
+    count = models.PositiveSmallIntegerField(verbose_name='Количество товаров')
+    total_price = models.DecimalField(
+        max_digits=7, decimal_places=0, verbose_name='Общая цена'
+    )
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    products = models.ManyToManyField(
+        Product,
+        related_name='wishlist_products',
+        verbose_name='Продукты',
+    )
+
+    def __str__(self):
+        return f'Wishlist for {self.user}'
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные'
+
+# class OrdersProduct(BaseModel):
+#     user = models.OneToOneField(
+#         User,
+#         on_delete=models.CASCADE,
+#         verbose_name='Пользователь',
+#     )
+#     products = models.ManyToManyField(
+#         Product,
+#         related_name='orders_products',
+#         verbose_name='Продукты',
+#     )

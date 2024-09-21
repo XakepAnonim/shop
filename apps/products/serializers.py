@@ -1,8 +1,14 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.catalog.serializers import ProductForCatalogSerializer
 from apps.main.serializers import BrandForProductSerializer
-from apps.products.models import Product, CharacteristicGroup, Characteristic
+from apps.products.models import (
+    Product,
+    CharacteristicGroup,
+    Characteristic,
+    WishlistProduct,
+)
 
 
 class CharacteristicSerializer(serializers.ModelSerializer):
@@ -65,4 +71,21 @@ class ProductSerializer(serializers.ModelSerializer):
             'isAvailable',
             'brand',
             'characteristics',
+        ]
+
+
+class WishlistProductSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор желаемых товаров пользователя
+    """
+
+    products = ProductForCatalogSerializer(many=True)
+
+    class Meta:
+        model = WishlistProduct
+        fields = [
+            'uuid',
+            'count',
+            'total_price',
+            'products',
         ]
