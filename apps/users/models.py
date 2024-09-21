@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
 )
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from phonenumber_field.modelfields import PhoneNumberField
 
 from apps.main.models import Company
@@ -192,6 +193,9 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         if permission:
             return self.permissions.filter(pk=permission.pk).exists()
         return False
+
+    def get_absolute_url(self):
+        return reverse('admin:users_user_change', args=[str(self.id)])
 
     class Meta:
         verbose_name = 'Пользователь'
