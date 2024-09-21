@@ -31,7 +31,7 @@ class BrandForProductSerializer(serializers.ModelSerializer):
         ]
 
 
-class BrandSerializer(serializers.ModelSerializer):
+class BrandWithProductSerializer(serializers.ModelSerializer):
     """
     Сериализатор отображение брэнда у товара на страничке
     """
@@ -47,4 +47,20 @@ class BrandSerializer(serializers.ModelSerializer):
             'description',
             'image',
             'products',
+        ]
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор отображение брэндов на главной странице
+    """
+
+    image = serializers.ImageField()
+
+    class Meta:
+        model = Brand
+        fields = [
+            'uuid',
+            'name',
+            'image',
         ]
