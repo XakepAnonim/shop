@@ -18,41 +18,55 @@ class Opinion(BaseModel):
     Модель мнения о товаре
     """
 
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
     advantages = models.TextField(verbose_name='Достоинства')
     disadvantages = models.TextField(verbose_name='Недостатки')
     commentary = models.TextField(verbose_name='Комментарий')
-    problem = models.TextField(verbose_name='Проблема', blank=True, null=True)
+    problem = models.TextField(
+        verbose_name='Проблема', blank=True, null=True
+    )
     images = models.FileField(
         verbose_name='Фотографии и видео', blank=True, null=True
     )
     periods = models.CharField(
         max_length=16,
         choices=PERIODS_CHOICES,
-        default=1,
-        verbose_name='Срок использования',
-    )
-    likes = models.ManyToManyField(
-        User, related_name='liked_opinions', blank=True, verbose_name='Лайки'
+        verbose_name='Срок использования'
     )
 
     user = models.ForeignKey(
         User,
         related_name='opinions',
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
+        verbose_name='Пользователь'
     )
     product = models.ForeignKey(
         Product,
         related_name='opinions',
         on_delete=models.CASCADE,
-        verbose_name='Товар',
+        verbose_name='Товар'
+    )
+    likes = models.ManyToManyField(
+        User,
+        related_name='liked_opinions',
+        blank=True,
+        verbose_name='Лайки'
+    )
+    dislikes = models.ManyToManyField(
+        User,
+        related_name='disliked_opinions',
+        blank=True,
+        verbose_name='Дизлайки'
     )
 
     def __str__(self):
         return f'{self.user} opinion on {self.product}'
 
+    @property
     def total_likes(self):
-        return self.likes.count()
+        return self.likes.count() - self.dislikes.count()
 
     class Meta:
         verbose_name = 'Мнение'
@@ -63,6 +77,11 @@ class OpinionComment(models.Model):
     """
     Модель комментариев к отзывам
     """
+
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
+    text = models.TextField(verbose_name='Комментарий')
 
     user = models.ForeignKey(
         User,
@@ -76,13 +95,21 @@ class OpinionComment(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Отзыв',
     )
-    text = models.TextField(verbose_name='Комментарий')
     likes = models.ManyToManyField(
-        User, related_name='liked_comments', blank=True, verbose_name='Лайки'
+        User,
+        related_name='liked_comments',
+        blank=True,
+        verbose_name='Лайки',
+    )
+    dislikes = models.ManyToManyField(
+        User,
+        related_name='disliked_comments',
+        verbose_name='Дизлайки',
     )
 
+    @property
     def total_likes(self):
-        return self.likes.count()
+        return self.likes.count() - self.dislikes.count()
 
     def __str__(self):
         return f'Комментарий {self.user} к отзыву {self.opinion}'
@@ -101,9 +128,7 @@ class Grades(models.Model):
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
     title = models.CharField(max_length=52, verbose_name='Название оценки')
-    grade = models.PositiveSmallIntegerField(
-        max_length=5, verbose_name='Оценка'
-    )
+    grade = models.PositiveSmallIntegerField(verbose_name='Оценка')
     opinion = models.ForeignKey(
         Opinion,
         related_name='grades',
