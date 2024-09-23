@@ -33,7 +33,7 @@ CATEGORY_TYPES = {
 
 
 @extend_schema(
-    responses=MainCategorySerializer,  # Указываем тип ответа
+    responses=MainCategorySerializer,
     description='Получение каталога товаров',
     summary='Получение каталога товаров',
     tags=['Каталог'],

@@ -1,7 +1,16 @@
 from django.contrib import admin
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.models import User, UserSession
+from apps.users.models import User, UserSession, Permission
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'codename',
+        'role',
+    )
 
 
 @admin.register(User)
