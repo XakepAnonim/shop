@@ -12,7 +12,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'query_counter',
     'drf_spectacular',
+    'debug_toolbar',
 
     'config',
     'apps.users',
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     'apps.test',
     'apps.catalog',
     'apps.cart',
+    'apps.opinion',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'query_counter.middleware.DjangoQueryCounterMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -209,3 +212,7 @@ SOCIAL_AUTH_PIPELINE = (
     'apps.custom_auth.services.pipeline.create_user',
     'social_core.pipeline.user.user_details',
 )
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
