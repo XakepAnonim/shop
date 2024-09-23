@@ -1,3 +1,5 @@
+import uuid as py_uuid
+
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -7,6 +9,7 @@ from rest_framework.response import Response
 
 from apps.cart.serializers import CartSerializer
 from apps.cart.services.cart import CartService
+from apps.products.services.product import ProductService
 
 
 @extend_schema(
@@ -21,3 +24,23 @@ def get_cart_handler(request: Request) -> Response:
     cart = CartService.get(request.user)
     serializer = CartSerializer(cart)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    responses=CartSerializer,
+    description='Добавление товара в корзину пользователя',
+    summary='Добавление товара в корзину пользователя',
+    tags=['Корзина'],
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def post_cart_handler(
+    request: Request, uuid: py_uuid.uuid4, slug: str
+) -> Response:
+    product = ProductService.get(uuid, slug)
+    cart = CartService.get_or_create(request.user, product)
+    serializer = CartSerializer(cart)
+    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+
+# так же нужно сделать запрос на увеличение кол-ва самого товара в корзине
