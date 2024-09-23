@@ -8,4 +8,5 @@ urlpatterns = [
     path('catalog/', include('apps.catalog.urls')),
     path('auth/', include('apps.custom_auth.urls')),
     path('products/', include('apps.products.urls')),
+    path('opinion/', include('apps.opinion.urls')),
 ]
