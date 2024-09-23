@@ -23,7 +23,7 @@ from apps.products.services.wishlist import WishlistService
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_product(request: Request, uuid: py_uuid.uuid4, slug) -> Response:
+def get_product(request: Request, uuid: py_uuid.uuid4, slug: str) -> Response:
     """
     Обработчик на получение товара
     """
@@ -46,4 +46,23 @@ def get_wishlist_products(request: Request) -> Response:
     """
     wishlist = WishlistService.get(request.user)
     serializer = WishlistProductSerializer(wishlist)
+    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    responses=WishlistProductSerializer,
+    description='Добавление\убирание товара в избранное',
+    summary='Добавление\убирание товара в избранное',
+    tags=['Избранное'],
+)
+@api_view(['GET'])
+def post_wishlist_product(
+    request: Request, uuid: py_uuid.uuid4, slug: str
+) -> Response:
+    """
+    Обработчик на добавление\убирание товара в избранное
+    """
+    product = ProductService.get(uuid, slug)
+    wishlist_product = WishlistService.get_or_create(request.user, product)
+    serializer = WishlistProductSerializer(wishlist_product)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)

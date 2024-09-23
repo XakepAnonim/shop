@@ -169,6 +169,7 @@ class WishlistProduct(BaseModel):
     """
     Модель желаемых товаров пользователя
     """
+
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
@@ -186,6 +187,7 @@ class WishlistProduct(BaseModel):
         Product,
         related_name='wishlist_products',
         verbose_name='Продукты',
+        blank=True,
     )
 
     def __str__(self):
@@ -194,6 +196,7 @@ class WishlistProduct(BaseModel):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
+
 
 # class OrdersProduct(BaseModel):
 #     user = models.OneToOneField(
