@@ -1,5 +1,4 @@
-import uuid as py_uuid
-
+from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 
 from apps.catalog.models import (
@@ -11,7 +10,7 @@ from apps.catalog.models import (
 )
 
 
-def get_all_categories() -> MainCategory:
+def get_all_categories() -> QuerySet[MainCategory]:
     """
     Получение каталога
     """
@@ -21,7 +20,7 @@ def get_all_categories() -> MainCategory:
     return categories
 
 
-def get_main_category(uuid: py_uuid.uuid4, slug: str) -> MainCategory:
+def get_main_category(uuid: str, slug: str) -> MainCategory:
     """
     Получение категории по uuid и slug
     """
@@ -35,7 +34,7 @@ def get_main_category(uuid: py_uuid.uuid4, slug: str) -> MainCategory:
     return main_category
 
 
-def get_sub_category(uuid: py_uuid.uuid4, slug: str) -> SubCategory:
+def get_sub_category(uuid: str, slug: str) -> SubCategory:
     """
     Получение подкатегории по uuid и slug
     """
@@ -49,7 +48,7 @@ def get_sub_category(uuid: py_uuid.uuid4, slug: str) -> SubCategory:
     return sub_category
 
 
-def get_product_variety(uuid: py_uuid.uuid4, slug: str) -> ProductVariety:
+def get_product_variety(uuid: str, slug: str) -> ProductVariety:
     """
     Получение разновидностей товаров по uuid и slug
     """
@@ -63,7 +62,7 @@ def get_product_variety(uuid: py_uuid.uuid4, slug: str) -> ProductVariety:
     return product_variety
 
 
-def get_product_type(uuid: py_uuid.uuid4, slug: str) -> ProductType:
+def get_product_type(uuid: str, slug: str) -> ProductType:
     """
     Получение типов товаров по uuid и slug
     """
@@ -77,7 +76,7 @@ def get_product_type(uuid: py_uuid.uuid4, slug: str) -> ProductType:
     return product_type
 
 
-def get_product_subtype(uuid: py_uuid.uuid4, slug: str) -> ProductSubtype:
+def get_product_subtype(uuid: str, slug: str) -> ProductSubtype:
     """
     Получение подтипов товаров по uuid и slug
     """

@@ -11,11 +11,11 @@ def create_user(
     """
     Создание пользователя при авторизации через Google
     """
-    email = response.get('email')
-    first_name = response.get('given_name')
-    last_name = response.get('family_name')
-    avatar = response.get('picture')
-    approved_email = response.get('email_verified')
+    email: str | None = response.get('email')
+    first_name: str | None = response.get('given_name')
+    last_name: str | None = response.get('family_name')
+    avatar: str | None = response.get('picture')
+    approved_email: str | None = response.get('email_verified')
 
     user = User.objects.create_user(
         email=email,

@@ -1,3 +1,5 @@
+from typing import Any
+
 from rest_framework import serializers
 
 from .models import Opinion, Grades
@@ -13,10 +15,10 @@ class OpinionSerializer(serializers.ModelSerializer):
     grades = GradesSerializer(many=True)
     total_likes = serializers.SerializerMethodField()
 
-    def get_total_likes(self, obj):
+    def get_total_likes(self, obj: Opinion) -> int:
         return obj.total_likes
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, Any]) -> Opinion:
         grades_data = validated_data.pop('grades')
         opinion = Opinion.objects.create(**validated_data)
         for grade_data in grades_data:
@@ -43,10 +45,10 @@ class OpinionCommentSerializer(serializers.ModelSerializer):
     grades = GradesSerializer(many=True)
     total_likes = serializers.SerializerMethodField()
 
-    def get_total_likes(self, obj):
+    def get_total_likes(self, obj: Opinion) -> int:
         return obj.total_likes
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, Any]) -> Opinion:
         grades_data = validated_data.pop('grades')
         opinion = Opinion.objects.create(**validated_data)
         for grade_data in grades_data:

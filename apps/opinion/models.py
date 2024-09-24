@@ -7,9 +7,9 @@ from apps.products.models import Product
 from apps.users.models import User
 
 PERIODS_CHOICES = (
-    (1, 'Менее месяца'),
-    (2, 'Не более года'),
-    (3, 'Более года'),
+    ('Менее месяца', 'Менее месяца'),
+    ('Не более года', 'Не более года'),
+    ('Более года', 'Более года'),
 )
 
 
@@ -61,11 +61,11 @@ class Opinion(BaseModel):
         verbose_name='Дизлайки'
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.user} opinion on {self.product}'
 
     @property
-    def total_likes(self):
+    def total_likes(self) -> int:
         return self.likes.count() - self.dislikes.count()
 
     class Meta:
@@ -108,10 +108,10 @@ class OpinionComment(models.Model):
     )
 
     @property
-    def total_likes(self):
+    def total_likes(self) -> int:
         return self.likes.count() - self.dislikes.count()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Комментарий {self.user} к отзыву {self.opinion}'
 
     class Meta:
@@ -136,7 +136,7 @@ class Grades(models.Model):
         verbose_name='Мнение',
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.title}: {self.grade}'
 
     class Meta:

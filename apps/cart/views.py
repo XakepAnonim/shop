@@ -1,5 +1,3 @@
-import uuid as py_uuid
-
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -34,9 +32,7 @@ def get_cart_handler(request: Request) -> Response:
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def post_cart_handler(
-    request: Request, uuid: py_uuid.uuid4, slug: str
-) -> Response:
+def post_cart_handler(request: Request, uuid: str, slug: str) -> Response:
     product = ProductService.get(uuid, slug)
     cart = CartService.get_or_create(request.user, product)
     serializer = CartSerializer(cart)

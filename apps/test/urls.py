@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.http import HttpResponse
 from django.urls import path
+from rest_framework.request import Request
 
 from apps.catalog.models import (
     MainCategory,
@@ -14,7 +15,7 @@ from apps.products.models import Product, CharacteristicGroup, Characteristic
 
 
 @transaction.atomic
-def catalog(request):
+def catalog(request: Request) -> HttpResponse:
     # Получаем или создаем компанию
     company, _ = Company.objects.get_or_create(
         name='Компания 1',

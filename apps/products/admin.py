@@ -53,12 +53,11 @@ class ProductAdmin(admin.ModelAdmin):
         ),
     )
 
-    def brand_display(self, obj):
+    @admin.display(description='Бренд')
+    def brand_display(self, obj: Product) -> str:
         return format_html(
             '<a href="{}">{}</a>', obj.brand.get_absolute_url(), obj.brand.name
         )
-
-    brand_display.short_description = 'Бренд'
 
 
 @admin.register(CharacteristicGroup)
@@ -67,14 +66,13 @@ class CharacteristicGroupAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('product',)
 
-    def product_display(self, obj):
+    @admin.display(description='Продукт')
+    def product_display(self, obj: CharacteristicGroup) -> str:
         return format_html(
             '<a href="{}">{}</a>',
             obj.product.get_absolute_url(),
             obj.product.name,
         )
-
-    product_display.short_description = 'Продукт'
 
 
 @admin.register(Characteristic)
@@ -83,12 +81,11 @@ class CharacteristicAdmin(admin.ModelAdmin):
     search_fields = ('title', 'value')
     list_filter = ('group',)
 
-    def group_display(self, obj):
+    @admin.display(description='Группа характеристик')
+    def group_display(self, obj: Characteristic) -> str:
         return format_html(
             '<a href="{}">{}</a>', obj.group.get_absolute_url(), obj.group.name
         )
-
-    group_display.short_description = 'Группа характеристик'
 
 
 @admin.register(WishlistProduct)
@@ -96,11 +93,10 @@ class WishlistProductAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'count', 'total_price', 'user_display')
     search_fields = ('user',)
 
-    def user_display(self, obj):
+    @admin.display(description='Пользователь')
+    def user_display(self, obj: WishlistProduct) -> str:
         return format_html(
             '<a href="{}">{}</a>',
             obj.user.get_absolute_url(),
             obj.user,
         )
-
-    user_display.short_description = 'Пользователь'

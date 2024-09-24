@@ -11,7 +11,7 @@ class WishlistService:
         return wishlist
 
     @staticmethod
-    def get_or_create(user: User, product: Product):
+    def get_or_create(user: User, product: Product) -> WishlistProduct:
         """
         Добавление\удаление товара из списка желаемых товаров
         """

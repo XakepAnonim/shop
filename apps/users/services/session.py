@@ -10,7 +10,7 @@ from apps.users.models import UserSession, User
 
 class SessionService:
     @staticmethod
-    def get(authSSID: uuid.uuid4().hex) -> UserSession:
+    def get(authSSID: str) -> UserSession:
         """
         Получение сеанса
         """
@@ -34,7 +34,7 @@ class SessionService:
         return sessions
 
     @staticmethod
-    def create(request: Request, user: User, **kwargs) -> None:
+    def create(request: Request, user: User) -> None:
         """
         Создание сеанса
         """
@@ -55,7 +55,7 @@ class SessionService:
         )
 
     @classmethod
-    def delete_session(cls, authSSID: uuid.uuid4().hex) -> None:
+    def delete_session(cls, authSSID: str) -> None:
         """
         Отключение сеанса
         """

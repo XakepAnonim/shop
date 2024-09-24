@@ -78,14 +78,14 @@ class Product(BaseModel):
         blank=True,
     )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.sku:
-            self.sku = self.generate_unique_sku()
+            self.generate_unique_sku()
         if not self.slug:
             self.slug = self.generate_unique_slug()
         super(Product, self).save(*args, **kwargs)
 
-    def generate_unique_sku(self):
+    def generate_unique_sku(self) -> int:
         import random
 
         while True:
@@ -93,7 +93,7 @@ class Product(BaseModel):
             if not Product.objects.filter(sku=sku).exists():
                 return sku
 
-    def generate_unique_slug(self):
+    def generate_unique_slug(self) -> str:
         base_slug = slugify(unidecode(self.name))
         slug = base_slug
         num = 1
@@ -102,10 +102,10 @@ class Product(BaseModel):
             num += 1
         return slug
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('admin:products_product_change', args=[str(self.id)])
 
     class Meta:
@@ -127,10 +127,10 @@ class CharacteristicGroup(models.Model):
         verbose_name='Продукт',
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse(
             'admin:products_characteristicgroup_change', args=[str(self.id)]
         )
@@ -157,7 +157,7 @@ class Characteristic(models.Model):
         verbose_name='Группа характеристик',
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.title}: {self.value}'
 
     class Meta:
@@ -190,7 +190,7 @@ class WishlistProduct(BaseModel):
         blank=True,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Wishlist for {self.user}'
 
     class Meta:

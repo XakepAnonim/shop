@@ -13,14 +13,13 @@ class BrandAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('company',)
 
-    def company_display(self, obj):
+    @admin.display(description='Компания')
+    def company_display(self, obj: Brand) -> str:
         return format_html(
             '<a href="{}">{}</a>',
             obj.company.get_absolute_url(),
             obj.company.name,
         )
-
-    company_display.short_description = 'Компания'
 
 
 @admin.register(Company)

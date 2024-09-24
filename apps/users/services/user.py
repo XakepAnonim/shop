@@ -1,5 +1,3 @@
-import uuid as py_uuid
-
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
@@ -8,7 +6,7 @@ from apps.users.models import User
 
 class UserService:
     @staticmethod
-    def get(uuid: py_uuid) -> User:
+    def get(uuid: str) -> User:
         """
         Получение пользователя по uuid
         """
@@ -32,7 +30,9 @@ class UserService:
         return user
 
     @staticmethod
-    def get_or_create_user(contact, secret, password=None) -> User:
+    def get_or_create_user(
+        contact: dict, secret: str, password: str | None = None
+    ) -> User:
         """
         Получает или создаёт пользователя на основе контактной информации.
         """
@@ -45,7 +45,7 @@ class UserService:
         else:
             raise ValidationError('E-mail/ телефон указаны неверно')
 
-        user.secret_key = secret
+        user.secretKey = secret
         if created and password:
             user.set_password(password)
         user.save()

@@ -22,7 +22,8 @@ class MainCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid', 'slug')
     inlines = [SubCategoryInline]
 
-    def sub_catergory_display(self, obj):
+    @admin.display(description='Категория')
+    def sub_catergory_display(self, obj: MainCategory) -> str:
         links = [
             format_html(
                 '<a href="{}">{}</a>',
@@ -55,7 +56,8 @@ class SubCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid', 'slug')
     inlines = [ProductVarietyInline]
 
-    def product_varietys_display(self, obj):
+    @admin.display(description='Разновидность товара')
+    def product_varietys_display(self, obj: SubCategory) -> str:
         links = [
             format_html(
                 '<a href="{}">{}</a>',
@@ -79,7 +81,8 @@ class ProductVarietyAdmin(admin.ModelAdmin):
     search_fields = ('name', 'subCategory__name')
     readonly_fields = ('uuid', 'slug')
 
-    def product_types_display(self, obj):
+    @admin.display(description='Тип товара')
+    def product_types_display(self, obj: ProductVariety) -> str:
         links = [
             format_html(
                 '<a href="{}">{}</a>',
@@ -109,7 +112,8 @@ class ProductTypeAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid', 'slug')
     inlines = [ProductSubtypeInline]
 
-    def product_subtypes_display(self, obj):
+    @admin.display(description='Подтип товара')
+    def product_subtypes_display(self, obj: ProductType) -> str:
         links = [
             format_html(
                 '<a href="{}">{}</a>',
@@ -127,7 +131,8 @@ class ProductSubtypeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'productType__name')
     readonly_fields = ('uuid', 'slug')
 
-    def products_display(self, obj):
+    @admin.display(description='Товары')
+    def products_display(self, obj: ProductSubtype) -> str:
         links = [
             format_html(
                 '<a href="{}">{}</a>',

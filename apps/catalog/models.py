@@ -1,4 +1,6 @@
 import uuid
+from typing import Optional, Iterable
+
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -26,12 +28,12 @@ class MainCategory(models.Model):
         verbose_name='Изображение',
     )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(MainCategory, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:
@@ -67,15 +69,15 @@ class SubCategory(models.Model):
         verbose_name='Главная категория',
     )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(SubCategory, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.mainCategory} -> {self.name}'
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('admin:catalog_subcategory_change', args=[str(self.id)])
 
     class Meta:
@@ -111,15 +113,15 @@ class ProductVariety(models.Model):
         verbose_name='Подкатегория',
     )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(ProductVariety, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.subCategory} -> {self.name}'
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse(
             'admin:catalog_productvariety_change', args=[str(self.id)]
         )
@@ -157,15 +159,15 @@ class ProductType(models.Model):
         blank=True,
     )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(ProductType, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.productVariety} -> {self.name}'
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('admin:catalog_producttype_change', args=[str(self.id)])
 
     class Meta:
@@ -199,15 +201,15 @@ class ProductSubtype(models.Model):
         verbose_name='Тип продукта',
     )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(ProductSubtype, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.productType} -> {self.name}'
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse(
             'admin:catalog_productsubtype_change', args=[str(self.id)]
         )

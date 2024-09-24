@@ -13,14 +13,13 @@ class OpinionAdmin(admin.ModelAdmin):
         'total_likes',
     )
 
-    def user_display(self, obj):
+    @admin.display(description='Пользователь')
+    def user_display(self, obj: Opinion) -> str:
         return format_html(
             '<a href="{}">{}</a>',
             obj.user.get_absolute_url(),
             obj.user,
         )
-
-    user_display.short_description = 'Пользователь'
 
 
 @admin.register(OpinionComment)
@@ -32,14 +31,13 @@ class OpinionCommentAdmin(admin.ModelAdmin):
         'total_likes',
     )
 
-    def user_display(self, obj):
+    @admin.display(description='Пользователь')
+    def user_display(self, obj: OpinionComment) -> str:
         return format_html(
             '<a href="{}">{}</a>',
             obj.user.get_absolute_url(),
             obj.user,
         )
-
-    user_display.short_description = 'Пользователь'
 
 
 @admin.register(Grades)

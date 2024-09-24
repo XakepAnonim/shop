@@ -27,11 +27,11 @@ class UserManager(BaseUserManager):
 
     def create_user(
         self,
-        email,
-        firstName,
-        lastName,
-        phoneNumber,
-        password=None,
+        email: str,
+        firstName: str,
+        lastName: str,
+        phoneNumber: str,
+        password: str | None = None,
         **extra_fields,
     ):
         if not email:
@@ -50,11 +50,11 @@ class UserManager(BaseUserManager):
 
     def create_superuser(
         self,
-        email,
-        firstName,
-        lastName,
-        phoneNumber,
-        password=None,
+        email: str,
+        firstName: str,
+        lastName: str,
+        phoneNumber: str,
+        password: str | None = None,
         **extra_fields,
     ):
         extra_fields.setdefault('isStaff', True)
@@ -79,7 +79,7 @@ class Permission(models.Model):
     codename = models.CharField(max_length=250)
     role = models.CharField(max_length=255, choices=ROLES)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:
@@ -160,7 +160,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
 
     objects = UserManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.email:
             return self.email
         elif self.phoneNumber:
@@ -171,21 +171,21 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
             return str(self.uuid)
 
     @property
-    def username(self):
+    def username(self) -> str:
         return f'{self.firstName} {self.lastName}'
 
     @property
-    def is_staff(self):
+    def is_staff(self) -> bool:
         return self.isStaff
 
-    def clean(self):
+    def clean(self) -> None:
         if self.isStaff and self.isCompany:
             raise ValidationError(
                 'Пользователь не может быть администратором и '
                 'компанией одновременно'
             )
 
-    def has_perms(self, codename):
+    def has_perms_by_codename(self, codename: str) -> bool:
         """
         Проверяет, есть ли у пользователя конкретное разрешение по его коду
         """
@@ -194,7 +194,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
             return self.permissions.filter(pk=permission.pk).exists()
         return False
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('admin:users_user_change', args=[str(self.id)])
 
     class Meta:
@@ -228,7 +228,7 @@ class UserSession(BaseModel):
         User, on_delete=models.CASCADE, related_name='sessions'
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.user.email} - {self.deviceType} ({self.ip})'
 
     class Meta:

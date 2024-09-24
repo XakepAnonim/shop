@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 
 from drf_spectacular.utils import (
     extend_schema_view,
@@ -29,7 +29,7 @@ def get_user_handler(request: Request, user: User) -> Response:
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
 
-def update_data_user_handler(request: Request, user) -> Response:
+def update_data_user_handler(request: Request, user: User) -> Response:
     """
     Обработчик обновления профиля пользователя
     """
@@ -62,11 +62,13 @@ def manage_user_handler(request: Request) -> Response:
     """
     Менеджер взаимодействия с пользователем
     """
-    user = UserService.get(request.user.uuid)
-    if request.method == 'GET':
-        return get_user_handler(request, user)
-    if request.method == 'PATCH':
-        return update_data_user_handler(request, user)
+    if isinstance(request.user, User) and isinstance(request.user.uuid, UUID):
+        user = UserService.get(str(request.user.uuid))
+        if request.method == 'GET':
+            return get_user_handler(request, user)
+        if request.method == 'PATCH':
+            return update_data_user_handler(request, user)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(
@@ -85,27 +87,29 @@ def get_user_sessions_handler(request: Request) -> Response:
     """
     Получение сеансов пользователя
     """
-    sessions = SessionService.filter_by_user(request.user)
-    session_data = []
-    for session in sessions:
-        session_data.append(
-            {
-                'authSSID': session.authSSID,
-                'placeID': {
-                    'deviceType': session.deviceType,
-                    'deviceName': session.deviceName,
-                    'os': session.os,
-                    'browser': session.browser,
-                    'ip': session.ip,
-                    'cityName': '',
-                    'installationId': None,
-                },
-                'createdAt': session.createdAt.isoformat(),
-                'country': session.country,
-                'isCurrent': session.isCurrent,
-            }
-        )
-    return Response({'data': session_data}, status=status.HTTP_200_OK)
+    if isinstance(request.user, User):
+        sessions = SessionService.filter_by_user(request.user)
+        session_data = []
+        for session in sessions:
+            session_data.append(
+                {
+                    'authSSID': session.authSSID,
+                    'placeID': {
+                        'deviceType': session.deviceType,
+                        'deviceName': session.deviceName,
+                        'os': session.os,
+                        'browser': session.browser,
+                        'ip': session.ip,
+                        'cityName': '',
+                        'installationId': None,
+                    },
+                    'createdAt': session.createdAt.isoformat(),
+                    'country': session.country,
+                    'isCurrent': session.isCurrent,
+                }
+            )
+        return Response({'data': session_data}, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(
@@ -122,9 +126,7 @@ def get_user_sessions_handler(request: Request) -> Response:
 )
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def close_session_handler(
-    request: Request, authSSID: uuid.uuid4().hex
-) -> Response:
+def close_session_handler(request: Request, authSSID: str) -> Response:
     """
     Отключение сеанса пользователя
     """

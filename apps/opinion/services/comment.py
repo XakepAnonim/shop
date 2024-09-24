@@ -1,5 +1,3 @@
-import uuid
-
 from django.shortcuts import get_object_or_404
 
 from apps.opinion.models import OpinionComment
@@ -8,7 +6,7 @@ from apps.users.models import User
 
 class OpinionCommentService:
     @staticmethod
-    def get(opinion_uuid: uuid.uuid4) -> OpinionComment:
+    def get(opinion_uuid: str) -> OpinionComment:
         opinion_comment = get_object_or_404(OpinionComment, uuid=opinion_uuid)
         return opinion_comment
 

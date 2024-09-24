@@ -1,5 +1,3 @@
-import uuid
-
 from django.shortcuts import get_object_or_404
 
 from apps.products.models import Product
@@ -7,7 +5,7 @@ from apps.products.models import Product
 
 class ProductService:
     @staticmethod
-    def get(product_uuid: uuid.uuid4, slug: str) -> Product:
+    def get(product_uuid: str, slug: str) -> Product:
         """
         Получение товара по uuid и slug
         """
@@ -15,7 +13,7 @@ class ProductService:
         return product
 
     @staticmethod
-    def get_only_uuid(product_uuid: uuid.uuid4) -> Product:
+    def get_only_uuid(product_uuid: str) -> Product:
         """
         Получение товара по uuid
         """

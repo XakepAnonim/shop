@@ -30,7 +30,7 @@ class Cart(models.Model):
         verbose_name='Продукты',
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Cart for {self.user}'
 
     class Meta:
