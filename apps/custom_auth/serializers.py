@@ -5,7 +5,7 @@ from pyotp import TOTP
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.custom_auth.services.contact import Contact
+from apps.custom_auth.services.contact import ContactService
 
 
 class VerifyOTPSerializer(serializers.Serializer):
@@ -16,13 +16,13 @@ class VerifyOTPSerializer(serializers.Serializer):
     contact = serializers.CharField()
     code = serializers.CharField(max_length=6)
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         """
         Валидация данных и проверка кода подтверждения.
         """
         contact = data.get('contact')
         code = data.get('code')
-        user = Contact.check_contact_info(contact, serializers)
+        user = ContactService.check_contact_info(contact)
 
         totp = TOTP(user.secretKey, interval=600)
         if not totp.verify(code):
@@ -32,7 +32,7 @@ class VerifyOTPSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> dict:
         """
         Генерация JWT токенов для пользователя.
         """
@@ -79,7 +79,7 @@ class PasswordSerializer(serializers.Serializer):
     contact = serializers.CharField()
     password = serializers.CharField(min_length=8, max_length=16)
 
-    def validate(self, attrs) -> dict:
+    def validate(self, attrs: dict) -> dict:
         """
         Проверка входных данных и аутентификация пользователя.
         """
@@ -117,13 +117,13 @@ class ChangePasswordSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6)
     new_password = serializers.CharField(min_length=8, max_length=16)
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         """
         Валидация данных: проверка кода подтверждения и существования пользователя.
         """
         contact = data.get('contact')
         code = data.get('code')
-        user = Contact.check_contact_info(contact, serializers)
+        user = ContactService.check_contact_info(contact)
 
         totp = TOTP(user.secretKey, interval=600)
         if not totp.verify(code):
@@ -133,7 +133,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
-    def save(self):
+    def save(self) -> dict:
         """
         Обновление пароля пользователя.
         """

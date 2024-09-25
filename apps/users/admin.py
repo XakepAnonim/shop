@@ -1,7 +1,9 @@
 from django.contrib import admin
+from django.db.models import QuerySet
+from rest_framework.request import Request
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.models import User, UserSession, Permission
+from apps.users.models import Permission, User, UserSession
 
 
 @admin.register(Permission)
@@ -70,15 +72,14 @@ class UserAdmin(admin.ModelAdmin):
     )
     actions = ['generate_jwt_token']
 
-    def generate_jwt_token(self, request, queryset):
+    @admin.display(description='Generate JWT token')
+    def generate_jwt_token(self, request: Request, queryset: QuerySet) -> None:
         for user in queryset:
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             self.message_user(
                 request, f'Token for {user.username}: {access_token}'
             )
-
-    generate_jwt_token.short_description = 'Generate JWT token'
 
 
 @admin.register(UserSession)

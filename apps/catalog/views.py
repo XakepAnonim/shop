@@ -1,5 +1,3 @@
-import uuid as py_uuid
-
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -40,9 +38,7 @@ CATEGORY_TYPES = {
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_category_handler(
-    request: Request, uuid: py_uuid.uuid4, slug: str
-) -> Response:
+def get_category_handler(request: Request, uuid: str, slug: str) -> Response:
     """
     Обработчик на получение категорий
     """

@@ -1,12 +1,18 @@
+from typing import Any
+
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.users.services.session import SessionService
 from apps.users.models import User
+from apps.users.services.session import SessionService
 
 
 def create_user(
-    request: Request, backend: str, response: Response, *args, **kwargs
+    request: Request,
+    backend: str,
+    response: Response,
+    *args: Any,
+    **kwargs: Any,
 ) -> None:
     """
     Создание пользователя при авторизации через Google

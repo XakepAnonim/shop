@@ -14,7 +14,7 @@ class UserService:
         return user
 
     @staticmethod
-    def get_by_phone_number(phone_number: int) -> User:
+    def get_by_phone_number(phone_number: str) -> User:
         """
         Получение пользователя по номеру телефона
         """
@@ -22,7 +22,7 @@ class UserService:
         return user
 
     @staticmethod
-    def get_by_email(email: int) -> User:
+    def get_by_email(email: str) -> User:
         """
         Получение пользователя по почте
         """

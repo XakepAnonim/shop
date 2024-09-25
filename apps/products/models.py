@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from django.db import models
 from django.urls import reverse
@@ -78,9 +79,9 @@ class Product(BaseModel):
         blank=True,
     )
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.sku:
-            self.generate_unique_sku()
+            self.sku = self.generate_unique_sku()
         if not self.slug:
             self.slug = self.generate_unique_slug()
         super(Product, self).save(*args, **kwargs)
@@ -196,16 +197,3 @@ class WishlistProduct(BaseModel):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
-
-
-# class OrdersProduct(BaseModel):
-#     user = models.OneToOneField(
-#         User,
-#         on_delete=models.CASCADE,
-#         verbose_name='Пользователь',
-#     )
-#     products = models.ManyToManyField(
-#         Product,
-#         related_name='orders_products',
-#         verbose_name='Продукты',
-#     )

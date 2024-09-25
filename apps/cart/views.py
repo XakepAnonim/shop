@@ -1,3 +1,5 @@
+from typing import cast
+
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -8,6 +10,7 @@ from rest_framework.response import Response
 from apps.cart.serializers import CartSerializer
 from apps.cart.services.cart import CartService
 from apps.products.services.product import ProductService
+from apps.users.models import User
 
 
 @extend_schema(
@@ -19,7 +22,8 @@ from apps.products.services.product import ProductService
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_cart_handler(request: Request) -> Response:
-    cart = CartService.get(request.user)
+    user = cast(User, request.user)
+    cart = CartService.get(user)
     serializer = CartSerializer(cart)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
@@ -33,8 +37,9 @@ def get_cart_handler(request: Request) -> Response:
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def post_cart_handler(request: Request, uuid: str, slug: str) -> Response:
+    user = cast(User, request.user)
     product = ProductService.get(uuid, slug)
-    cart = CartService.get_or_create(request.user, product)
+    cart = CartService.get_or_create(user, product)
     serializer = CartSerializer(cart)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 

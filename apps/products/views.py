@@ -1,4 +1,4 @@
-import uuid as py_uuid
+from typing import cast
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -13,6 +13,7 @@ from apps.products.serializers import (
 )
 from apps.products.services.product import ProductService
 from apps.products.services.wishlist import WishlistService
+from apps.users.models import User
 
 
 @extend_schema(
@@ -23,7 +24,7 @@ from apps.products.services.wishlist import WishlistService
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_product(request: Request, uuid: py_uuid.uuid4, slug: str) -> Response:
+def get_product(request: Request, uuid: str, slug: str) -> Response:
     """
     Обработчик на получение товара
     """
@@ -44,7 +45,8 @@ def get_wishlist_products(request: Request) -> Response:
     """
     Обработчик на получение желаемых товара
     """
-    wishlist = WishlistService.get(request.user)
+    user = cast(User, request.user)
+    wishlist = WishlistService.get(user)
     serializer = WishlistProductSerializer(wishlist)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
@@ -56,13 +58,12 @@ def get_wishlist_products(request: Request) -> Response:
     tags=['Избранное'],
 )
 @api_view(['GET'])
-def post_wishlist_product(
-    request: Request, uuid: py_uuid.uuid4, slug: str
-) -> Response:
+def post_wishlist_product(request: Request, uuid: str, slug: str) -> Response:
     """
     Обработчик на добавление\убирание товара в избранное
     """
+    user = cast(User, request.user)
     product = ProductService.get(uuid, slug)
-    wishlist_product = WishlistService.get_or_create(request.user, product)
+    wishlist_product = WishlistService.get_or_create(user, product)
     serializer = WishlistProductSerializer(wishlist_product)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)

@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional, Iterable
+from typing import Any
 
 from django.db import models
 from django.urls import reverse
@@ -28,7 +28,7 @@ class MainCategory(models.Model):
         verbose_name='Изображение',
     )
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(MainCategory, self).save(*args, **kwargs)
@@ -69,7 +69,7 @@ class SubCategory(models.Model):
         verbose_name='Главная категория',
     )
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(SubCategory, self).save(*args, **kwargs)
@@ -113,7 +113,7 @@ class ProductVariety(models.Model):
         verbose_name='Подкатегория',
     )
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(ProductVariety, self).save(*args, **kwargs)
@@ -159,7 +159,7 @@ class ProductType(models.Model):
         blank=True,
     )
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(ProductType, self).save(*args, **kwargs)
@@ -201,7 +201,7 @@ class ProductSubtype(models.Model):
         verbose_name='Тип продукта',
     )
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:
             self.slug = slugify(unidecode(self.name))
         super(ProductSubtype, self).save(*args, **kwargs)

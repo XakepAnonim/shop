@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -27,15 +28,13 @@ class UserManager(BaseUserManager):
 
     def create_user(
         self,
-        email: str,
-        firstName: str,
-        lastName: str,
-        phoneNumber: str,
+        email: str | None,
+        firstName: str | None,
+        lastName: str | None,
+        phoneNumber: str | None,
         password: str | None = None,
-        **extra_fields,
-    ):
-        if not email:
-            raise ValueError('The Email field must be set')
+        **extra_fields: Any,
+    ) -> 'User':
         email = self.normalize_email(email)
         user = self.model(
             email=email,
@@ -44,7 +43,8 @@ class UserManager(BaseUserManager):
             phoneNumber=phoneNumber,
             **extra_fields,
         )
-        user.set_password(password)
+        if password is not None:
+            user.set_password(password)
         user.save(using=self._db)
         return user
 
@@ -55,8 +55,8 @@ class UserManager(BaseUserManager):
         lastName: str,
         phoneNumber: str,
         password: str | None = None,
-        **extra_fields,
-    ):
+        **extra_fields: Any,
+    ) -> 'User':
         extra_fields.setdefault('isStaff', True)
         extra_fields.setdefault('is_superuser', True)
 

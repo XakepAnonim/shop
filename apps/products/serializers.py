@@ -4,9 +4,9 @@ from rest_framework import serializers
 from apps.catalog.serializers import ProductForCatalogSerializer
 from apps.main.serializers import BrandForProductSerializer
 from apps.products.models import (
-    Product,
-    CharacteristicGroup,
     Characteristic,
+    CharacteristicGroup,
+    Product,
     WishlistProduct,
 )
 
@@ -51,7 +51,7 @@ class ProductSerializer(serializers.ModelSerializer):
     characteristics = serializers.SerializerMethodField()
 
     @extend_schema_field(CharacteristicGroupSerializer(many=True))
-    def get_characteristics(self, obj):
+    def get_characteristics(self, obj: Product) -> dict:
         queryset = obj.characteristic_groups.all()
         serializer = CharacteristicGroupSerializer(queryset, many=True)
         return serializer.data

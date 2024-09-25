@@ -7,9 +7,9 @@ from apps.users.models import User
 from apps.users.services.user import UserService
 
 
-class Contact:
+class ContactService:
     @staticmethod
-    def check_contact_type(contact) -> dict | Response:
+    def check_contact_type(contact: str) -> dict | Response:
         """
         Проверка на тип контакта (телефон или почта)
         """
@@ -22,24 +22,20 @@ class Contact:
         return info
 
     @staticmethod
-    def check_contact_info(contact, serializers) -> User:
+    def check_contact_info(contact: str) -> User:
         """
         Получение пользователя по контакту (почта или телефон)
         """
         if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', contact):
             user = UserService.get_by_email(contact)
             if not user:
-                raise serializers.ValidationError(
-                    'Пользователь с таким email не найден.'
-                )
+                raise ValidationError('Пользователь с таким email не найден.')
         elif re.match(r'^\+?7\d{10}$', contact):
             user = UserService.get_by_phone_number(contact)
             if not user:
-                raise serializers.ValidationError(
+                raise ValidationError(
                     'Пользователь с таким номером телефона не найден.'
                 )
         else:
-            raise serializers.ValidationError(
-                'E-mail/ телефон указаны неверно'
-            )
+            raise ValidationError('E-mail/ телефон указаны неверно')
         return user

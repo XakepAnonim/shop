@@ -8,7 +8,7 @@ from apps.custom_auth.services.sms import send_sms
 from apps.users.services.user import UserService
 
 
-def generate_otp():
+def generate_otp() -> tuple[str, str]:
     """
     Генерация кода и его секретного ключа
     """
@@ -20,7 +20,9 @@ def generate_otp():
     return otp_code, secret
 
 
-async def send_verification_code(contact_info, password=None):
+async def send_verification_code(
+    contact_info: dict, password: str | None = None
+) -> None | dict | Response:
     """
     Отправление кода на телефон или почту
     """

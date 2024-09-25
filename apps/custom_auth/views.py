@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -7,14 +8,14 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.custom_auth.serializers import (
-    VerifyOTPSerializer,
     ContactSerializer,
+    ContactInfoSerializer,
+    VerifyOTPSerializer,
     PasswordSerializer,
     ChangePasswordSerializer,
-    ContactInfoSerializer,
 )
 from apps.custom_auth.services.code import send_verification_code
-from apps.custom_auth.services.contact import Contact
+from apps.custom_auth.services.contact import ContactService
 from apps.users.services.session import SessionService
 
 
@@ -33,7 +34,7 @@ def send_code_handler(request: Request) -> Response:
     serializer_response = ContactSerializer(data=request.data)
     serializer_response.is_valid(raise_exception=True)
     contact_info = serializer_response.validated_data['contact']
-    info = Contact.check_contact_type(contact_info)
+    info = ContactService.check_contact_type(contact_info)
 
     serializer = ContactInfoSerializer(info)
     result = asyncio.run(send_verification_code(serializer.data))
@@ -48,14 +49,14 @@ def send_code_handler(request: Request) -> Response:
     tags=['Авторизация'],
 )
 @api_view(['POST'])
-def verify_code_handler(request: Request, **kwargs) -> Response:
+def verify_code_handler(request: Request, **kwargs: Any) -> Response:
     """
     Функция для проверки кода подтверждения
     """
     serializer = VerifyOTPSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     tokens = serializer.save()
-    SessionService.create(request, serializer.validated_data['user'], **kwargs)
+    SessionService.create(request, serializer.validated_data['user'])
     return Response({'data': tokens}, status=status.HTTP_200_OK)
 
 
@@ -86,7 +87,7 @@ def login_password_handler(request: Request) -> Response:
         )
     contact_info = serializer.validated_data['contact']
     password = serializer.validated_data['password']
-    info = Contact.check_contact_type(contact_info)
+    info = ContactService.check_contact_type(contact_info)
 
     serializer = ContactInfoSerializer(info)
     result = asyncio.run(send_verification_code(serializer.data, password))
