@@ -1,17 +1,17 @@
 from django.urls import path
 
 from apps.opinion.views import (
-    get_product_opinions,
-    add_opinion,
-    like_opinion,
-    dislike_opinion
+    manage_opinion_handler,
+    manage_comments_handler,
+    manage_question_handler,
+    like_handler,
+    dislike_handler,
 )
 
 urlpatterns = [
-    path('', get_product_opinions),
-    path('add/', add_opinion),
-    path('like/', like_opinion),
-    path('dislike/', dislike_opinion),
-    path('comment/like/', like_opinion),
-    path('comment/dislike/', dislike_opinion),
+    path('', manage_opinion_handler),
+    path('comments/', manage_comments_handler),
+    path('question/', manage_question_handler),
+    path('like/', like_handler),
+    path('dislike/', dislike_handler),
 ]

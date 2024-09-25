@@ -24,41 +24,36 @@ class Opinion(BaseModel):
     advantages = models.TextField(verbose_name='Достоинства')
     disadvantages = models.TextField(verbose_name='Недостатки')
     commentary = models.TextField(verbose_name='Комментарий')
-    problem = models.TextField(
-        verbose_name='Проблема', blank=True, null=True
-    )
+    problem = models.TextField(verbose_name='Проблема', blank=True, null=True)
     images = models.FileField(
         verbose_name='Фотографии и видео', blank=True, null=True
     )
     periods = models.CharField(
         max_length=16,
         choices=PERIODS_CHOICES,
-        verbose_name='Срок использования'
+        verbose_name='Срок использования',
     )
 
     user = models.ForeignKey(
         User,
         related_name='opinions',
         on_delete=models.CASCADE,
-        verbose_name='Пользователь'
+        verbose_name='Пользователь',
     )
     product = models.ForeignKey(
         Product,
         related_name='opinions',
         on_delete=models.CASCADE,
-        verbose_name='Товар'
+        verbose_name='Товар',
     )
     likes = models.ManyToManyField(
-        User,
-        related_name='liked_opinions',
-        blank=True,
-        verbose_name='Лайки'
+        User, related_name='liked_opinions', blank=True, verbose_name='Лайки'
     )
     dislikes = models.ManyToManyField(
         User,
         related_name='disliked_opinions',
         blank=True,
-        verbose_name='Дизлайки'
+        verbose_name='Дизлайки',
     )
 
     def __str__(self) -> str:
@@ -73,7 +68,7 @@ class Opinion(BaseModel):
         verbose_name_plural = 'Мнения'
 
 
-class OpinionComment(models.Model):
+class Comment(models.Model):
     """
     Модель комментариев к отзывам
     """
@@ -94,6 +89,16 @@ class OpinionComment(models.Model):
         related_name='comments',
         on_delete=models.CASCADE,
         verbose_name='Отзыв',
+        blank=True,
+        null=True,
+    )
+    question = models.ForeignKey(
+        Opinion,
+        related_name='questions',
+        on_delete=models.CASCADE,
+        verbose_name='Вопрос',
+        blank=True,
+        null=True,
     )
     likes = models.ManyToManyField(
         User,
@@ -142,3 +147,45 @@ class Grades(models.Model):
     class Meta:
         verbose_name = 'Оценка характеристики'
         verbose_name_plural = 'Оценки характеристик'
+
+
+class Question(BaseModel):
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
+    title = models.TextField(max_length=50, verbose_name='Заголовок')
+    text = models.TextField(verbose_name='Подробно опишите Вашу проблему')
+    user = models.ForeignKey(
+        User,
+        related_name='questions',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    product = models.ForeignKey(
+        Product,
+        related_name='questions',
+        on_delete=models.CASCADE,
+        verbose_name='Товар',
+    )
+    likes = models.ManyToManyField(
+        User,
+        related_name='liked_questions',
+        blank=True,
+        verbose_name='Лайки',
+    )
+    dislikes = models.ManyToManyField(
+        User,
+        related_name='disliked_questions',
+        verbose_name='Дизлайки',
+    )
+
+    @property
+    def total_likes(self) -> int:
+        return self.likes.count() - self.dislikes.count()
+
+    def __str__(self) -> str:
+        return f'Вопрос от {self.user} к товару {self.product}'
+
+    class Meta:
+        verbose_name = 'Вопрос к товару'
+        verbose_name_plural = 'Вопросы к товарам'
