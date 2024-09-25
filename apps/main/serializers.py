@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.catalog.serializers import ProductForCatalogSerializer
-from apps.main.models import Brand, Company
+from apps.main.models import Company, Brand
 
 
 class CompanySerializer(serializers.ModelSerializer):

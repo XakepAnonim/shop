@@ -3,8 +3,8 @@ from uuid import UUID
 from drf_spectacular.utils import (
     extend_schema_view,
     extend_schema,
-    OpenApiExample,
     OpenApiResponse,
+    OpenApiExample,
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -13,10 +13,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.users.models import User
-from apps.users.serializers import (
-    AuthUserSerializer,
-    UpdateUserSerializer,
-)
+from apps.users.serializers import AuthUserSerializer, UpdateUserSerializer
 from apps.users.services.session import SessionService
 from apps.users.services.user import UserService
 
