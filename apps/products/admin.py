@@ -66,7 +66,7 @@ class CharacteristicGroupAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('product',)
 
-    @admin.display(description='Продукт')
+    @admin.display(description='Товар')
     def product_display(self, obj: CharacteristicGroup) -> str:
         return format_html(
             '<a href="{}">{}</a>',
