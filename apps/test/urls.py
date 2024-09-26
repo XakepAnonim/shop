@@ -11,11 +11,20 @@ from apps.catalog.models import (
     ProductSubtype,
 )
 from apps.main.models import Company, Brand
-from apps.products.models import Product, CharacteristicGroup, Characteristic
+from apps.opinion.models import Opinion, Question, Grades, Comment
+from apps.products.models import (
+    Product,
+    CharacteristicGroup,
+    Characteristic,
+    WishlistProduct,
+)
+from apps.users.models import User
 
 
 @transaction.atomic
 def catalog(request: Request) -> HttpResponse:
+    user = User.objects.get(email='admin@mail.ru')
+
     # Получаем или создаем компанию
     company, _ = Company.objects.get_or_create(
         name='Компания 1',
@@ -136,6 +145,51 @@ def catalog(request: Request) -> HttpResponse:
     # Добавляем продукты в соответствующие типы/подтипы
     product_types[0].products_in_type.add(products[0])
     product_subtype.products_in_subtype.add(products[1])
+
+    wishlist_product, _ = WishlistProduct.objects.get_or_create(
+        count=1,
+        total_price=100,
+        user=user,
+    )
+    wishlist_product.products.add(products[0])
+
+    opinion, _ = Opinion.objects.get_or_create(
+        advantages='Топ штука',
+        disadvantages='Их нет',
+        commentary='Мне понравилось',
+        periods='Не более года',
+        user=user,
+        product=products[0],
+    )
+
+    grades, _ = Grades.objects.get_or_create(
+        title='Общая оценка',
+        grade=5,
+        opinion=opinion,
+    )
+
+    opinion.grades.add(grades)
+
+    question, _ = Question.objects.get_or_create(
+        title='Куда я жмал?',
+        text='Как этим пользоваться?',
+        user=user,
+        product=products[0],
+    )
+
+    comment, _ = Comment.objects.get_or_create(
+        text='Фигню несешь',
+        opinion=opinion,
+        user=user,
+    )
+    comment.dislikes.set([user])
+
+    comment1, _ = Comment.objects.get_or_create(
+        text='Берешь и используешь',
+        question=question,
+        user=user,
+    )
+    comment1.likes.set([user])
 
     return HttpResponse('Каталог успешно создан')
 
