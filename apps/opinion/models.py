@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.urls import reverse
 
 from apps.models import BaseModel
 from apps.products.models import Product
@@ -13,14 +14,45 @@ PERIODS_CHOICES = (
 )
 
 
-class Opinion(BaseModel):
+class BaseModelOpinion(BaseModel):
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
+    likes = models.ManyToManyField(
+        User,
+        related_name='liked_%(class)s',
+        verbose_name='Лайки',
+        blank=True,
+    )
+    dislikes = models.ManyToManyField(
+        User,
+        related_name='disliked_%(class)s',
+        verbose_name='Дизлайки',
+        blank=True,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='%(class)s',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+
+    def __str__(self) -> str:
+        return f'{self.__class__.__name__} от {self.user}'
+
+    @property
+    def total_likes(self) -> int:
+        return self.likes.count() - self.dislikes.count()
+
+    class Meta:
+        abstract = True
+
+
+class Opinion(BaseModelOpinion):
     """
     Модель мнения о товаре
     """
 
-    uuid = models.UUIDField(
-        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
-    )
     advantages = models.TextField(verbose_name='Достоинства')
     disadvantages = models.TextField(verbose_name='Недостатки')
     commentary = models.TextField(verbose_name='Комментарий')
@@ -34,56 +66,53 @@ class Opinion(BaseModel):
         verbose_name='Срок использования',
     )
 
-    user = models.ForeignKey(
-        User,
-        related_name='opinions',
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-    )
     product = models.ForeignKey(
         Product,
         related_name='opinions',
         on_delete=models.CASCADE,
         verbose_name='Товар',
     )
-    likes = models.ManyToManyField(
-        User, related_name='liked_opinions', blank=True, verbose_name='Лайки'
-    )
-    dislikes = models.ManyToManyField(
-        User,
-        related_name='disliked_opinions',
-        blank=True,
-        verbose_name='Дизлайки',
-    )
 
     def __str__(self) -> str:
-        return f'{self.user} opinion on {self.product}'
+        return f'{self.user} отзыв к товару {self.product}'
 
-    @property
-    def total_likes(self) -> int:
-        return self.likes.count() - self.dislikes.count()
+    def get_absolute_url(self) -> str:
+        return reverse('admin:opinion_opinion_change', args=[str(self.id)])
 
     class Meta:
         verbose_name = 'Мнение'
         verbose_name_plural = 'Мнения'
 
 
-class Comment(models.Model):
+class Question(BaseModelOpinion):
+    title = models.TextField(max_length=50, verbose_name='Заголовок')
+    text = models.TextField(verbose_name='Подробно опишите Вашу проблему')
+
+    product = models.ForeignKey(
+        Product,
+        related_name='questions',
+        on_delete=models.CASCADE,
+        verbose_name='Товар',
+    )
+
+    def __str__(self) -> str:
+        return f'Вопрос от {self.user} к товару {self.product}'
+
+    def get_absolute_url(self) -> str:
+        return reverse('admin:opinion_question_change', args=[str(self.id)])
+
+    class Meta:
+        verbose_name = 'Вопрос к товару'
+        verbose_name_plural = 'Вопросы к товарам'
+
+
+class Comment(BaseModelOpinion):
     """
     Модель комментариев к отзывам
     """
 
-    uuid = models.UUIDField(
-        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
-    )
     text = models.TextField(verbose_name='Комментарий')
 
-    user = models.ForeignKey(
-        User,
-        related_name='opinion_comments',
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-    )
     opinion = models.ForeignKey(
         Opinion,
         related_name='comments',
@@ -93,35 +122,23 @@ class Comment(models.Model):
         null=True,
     )
     question = models.ForeignKey(
-        Opinion,
+        Question,
         related_name='questions',
         on_delete=models.CASCADE,
         verbose_name='Вопрос',
         blank=True,
         null=True,
     )
-    likes = models.ManyToManyField(
-        User,
-        related_name='liked_comments',
-        blank=True,
-        verbose_name='Лайки',
-    )
-    dislikes = models.ManyToManyField(
-        User,
-        related_name='disliked_comments',
-        verbose_name='Дизлайки',
-    )
-
-    @property
-    def total_likes(self) -> int:
-        return self.likes.count() - self.dislikes.count()
 
     def __str__(self) -> str:
-        return f'Комментарий {self.user} к отзыву {self.opinion}'
+        if self.opinion:
+            return f'Комментарий {self.user} к отзыву {self.opinion}'
+        elif self.question:
+            return f'Комментарий {self.user} к вопросу {self.question}'
 
     class Meta:
-        verbose_name = 'Комментарий к отзыву'
-        verbose_name_plural = 'Комментарии к отзывам'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
 
 class Grades(models.Model):
@@ -147,45 +164,3 @@ class Grades(models.Model):
     class Meta:
         verbose_name = 'Оценка характеристики'
         verbose_name_plural = 'Оценки характеристик'
-
-
-class Question(BaseModel):
-    uuid = models.UUIDField(
-        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
-    )
-    title = models.TextField(max_length=50, verbose_name='Заголовок')
-    text = models.TextField(verbose_name='Подробно опишите Вашу проблему')
-    user = models.ForeignKey(
-        User,
-        related_name='questions',
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-    )
-    product = models.ForeignKey(
-        Product,
-        related_name='questions',
-        on_delete=models.CASCADE,
-        verbose_name='Товар',
-    )
-    likes = models.ManyToManyField(
-        User,
-        related_name='liked_questions',
-        blank=True,
-        verbose_name='Лайки',
-    )
-    dislikes = models.ManyToManyField(
-        User,
-        related_name='disliked_questions',
-        verbose_name='Дизлайки',
-    )
-
-    @property
-    def total_likes(self) -> int:
-        return self.likes.count() - self.dislikes.count()
-
-    def __str__(self) -> str:
-        return f'Вопрос от {self.user} к товару {self.product}'
-
-    class Meta:
-        verbose_name = 'Вопрос к товару'
-        verbose_name_plural = 'Вопросы к товарам'
