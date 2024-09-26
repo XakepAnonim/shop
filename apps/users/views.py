@@ -18,26 +18,6 @@ from apps.users.services.session import SessionService
 from apps.users.services.user import UserService
 
 
-def get_user_handler(request: Request, user: User) -> Response:
-    """
-    Обработчик получения профиля пользователя
-    """
-    serializer = AuthUserSerializer(user)
-    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-
-
-def update_data_user_handler(request: Request, user: User) -> Response:
-    """
-    Обработчик обновления профиля пользователя
-    """
-    serializer = UpdateUserSerializer(
-        data=request.data, instance=user, partial=True
-    )
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-
-
 @extend_schema_view(
     get=extend_schema(
         responses=AuthUserSerializer,
@@ -61,11 +41,31 @@ def manage_user_handler(request: Request) -> Response:
     """
     if isinstance(request.user, User) and isinstance(request.user.uuid, UUID):
         user = UserService.get(str(request.user.uuid))
+
         if request.method == 'GET':
-            return get_user_handler(request, user)
+            """
+            Обработчик получения профиля пользователя
+            """
+
+            serializer = AuthUserSerializer(user)
+            return Response(
+                {'data': serializer.data}, status=status.HTTP_200_OK
+            )
         if request.method == 'PATCH':
-            return update_data_user_handler(request, user)
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+            """
+            Обработчик обновления профиля пользователя
+            """
+
+            serializer = UpdateUserSerializer(
+                data=request.data, instance=user, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(
+                {'data': serializer.data}, status=status.HTTP_200_OK
+            )
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(
