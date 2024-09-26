@@ -66,12 +66,23 @@ class GetOpinionSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    def create(self, validated_data: dict[str, Any]) -> Opinion:
-        comment = Comment.objects.create(
-            user=self.context['user'],
-            opinion=self.context['opinion'],
-            **validated_data,
-        )
+    def create(self, validated_data: dict[str, Any]) -> Comment:
+        opinion = self.context.get('opinion')
+        question = self.context.get('question')
+        comment = None
+
+        if opinion:
+            comment = Comment.objects.create(
+                user=self.context['user'],
+                opinion=self.context['opinion'],
+                **validated_data,
+            )
+        elif question:
+            comment = Comment.objects.create(
+                user=self.context['user'],
+                question=self.context['question'],
+                **validated_data,
+            )
         return comment
 
     class Meta:
@@ -104,6 +115,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = [
+            'title',
             'text',
         ]
 

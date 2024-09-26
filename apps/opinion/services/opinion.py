@@ -24,3 +24,11 @@ class OpinionService:
         else:
             opinion.likes.add(user)
             opinion.dislikes.remove(user)
+
+    @staticmethod
+    def add_or_remove_dislikes(user: User, opinion: Opinion) -> None:
+        if user in opinion.dislikes.all():
+            opinion.dislikes.remove(user)
+        else:
+            opinion.dislikes.add(user)
+            opinion.likes.remove(user)
