@@ -4,9 +4,10 @@ from typing import Any
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from mptt.fields import TreeForeignKey
 from unidecode import unidecode
 
-from apps.catalog.models import ProductType, ProductSubtype
+from apps.catalog.models import Category
 from apps.models import BaseModel
 from apps.users.models import User
 
@@ -62,21 +63,11 @@ class Product(BaseModel):
         on_delete=models.CASCADE,
         verbose_name='Бренд',
     )
-    productType = models.ForeignKey(
-        ProductType,
-        related_name='products_in_type',
+    category = TreeForeignKey(
+        Category,
+        related_name='products',
         on_delete=models.CASCADE,
-        verbose_name='Тип продукта',
-        null=True,
-        blank=True,
-    )
-    productSubtype = models.ForeignKey(
-        ProductSubtype,
-        related_name='products_in_subtype',
-        on_delete=models.CASCADE,
-        verbose_name='Подтип продукта',
-        null=True,
-        blank=True,
+        verbose_name='Категория',
     )
 
     def save(self, *args: Any, **kwargs: Any) -> None:

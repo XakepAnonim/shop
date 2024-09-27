@@ -1,13 +1,6 @@
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.catalog.models import (
-    ProductSubtype,
-    ProductType,
-    ProductVariety,
-    SubCategory,
-    MainCategory,
-)
+from apps.catalog.models import Category
 from apps.products.models import Product
 
 
@@ -32,127 +25,25 @@ class ProductForCatalogSerializer(serializers.ModelSerializer):
         ]
 
 
-class ProductSubtypeSerializer(serializers.ModelSerializer):
+class RecursiveField(serializers.Serializer):
     """
-    Сериализатор подтипа товара
+    Рекурсивное поле для вложенных категорий.
     """
 
-    image = serializers.ImageField()
-    childs = serializers.SerializerMethodField()
-
-    @extend_schema_field(ProductForCatalogSerializer(many=True))
-    def get_childs(self, obj: ProductSubtype) -> dict:
-        queryset = obj.products_in_subtype.all()
-        serializer = ProductForCatalogSerializer(queryset, many=True)
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context)
         return serializer.data
 
-    class Meta:
-        model = ProductSubtype
-        fields = [
-            'uuid',
-            'name',
-            'slug',
-            'image',
-            'childs',
-        ]
 
-
-class ProductTypeSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     """
-    Сериализатор типа товара
+    Рекурсивный сериализатор категории.
     """
 
     image = serializers.ImageField()
-    childs = serializers.SerializerMethodField()
-
-    @extend_schema_field(
-        serializers.ListSerializer(child=serializers.DictField())
-    )
-    def get_childs(self, obj: ProductType) -> dict:
-        subtypes = obj.product_subtypes.all()
-        if subtypes:
-            serializer = ProductSubtypeSerializer(subtypes, many=True)
-            return serializer.data
-        else:
-            products = obj.products_in_type.all()
-            serializer = ProductForCatalogSerializer(products, many=True)
-            return serializer.data
+    children = RecursiveField(many=True)
+    products = ProductForCatalogSerializer(many=True, read_only=True)
 
     class Meta:
-        model = ProductType
-        fields = [
-            'uuid',
-            'name',
-            'slug',
-            'image',
-            'childs',
-        ]
-
-
-class ProductVarietySerializer(serializers.ModelSerializer):
-    """
-    Сериализатор разновидности товара
-    """
-
-    image = serializers.ImageField()
-    childs = serializers.SerializerMethodField()
-
-    @extend_schema_field(ProductTypeSerializer(many=True))
-    def get_childs(self, obj: ProductVariety) -> dict:
-        queryset = obj.product_types.all()
-        serializer = ProductTypeSerializer(queryset, many=True)
-        return serializer.data
-
-    class Meta:
-        model = ProductVariety
-        fields = [
-            'uuid',
-            'name',
-            'slug',
-            'image',
-            'childs',
-        ]
-
-
-class SubCategorySerializer(serializers.ModelSerializer):
-    """
-    Сериализатор подкатегории
-    """
-
-    image = serializers.ImageField()
-    childs = serializers.SerializerMethodField()
-
-    @extend_schema_field(ProductVarietySerializer(many=True))
-    def get_childs(self, obj: SubCategory) -> dict:
-        queryset = obj.product_varietys.all()
-        serializer = ProductVarietySerializer(queryset, many=True)
-        return serializer.data
-
-    class Meta:
-        model = SubCategory
-        fields = [
-            'uuid',
-            'name',
-            'slug',
-            'image',
-            'childs',
-        ]
-
-
-class MainCategorySerializer(serializers.ModelSerializer):
-    """
-    Сериализатор категории
-    """
-
-    image = serializers.ImageField()
-    childs = serializers.SerializerMethodField()
-
-    @extend_schema_field(SubCategorySerializer(many=True))
-    def get_childs(self, obj: MainCategory) -> dict:
-        queryset = obj.subcategories.all()
-        serializer = SubCategorySerializer(queryset, many=True)
-        return serializer.data
-
-    class Meta:
-        model = MainCategory
-        fields = ['uuid', 'name', 'slug', 'image', 'childs']
+        model = Category
+        fields = ['uuid', 'name', 'slug', 'image', 'children', 'products']
