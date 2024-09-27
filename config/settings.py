@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'query_counter',
     'drf_spectacular',
     'debug_toolbar',
+    'mptt',
 
     'config',
     'apps.users',
@@ -216,3 +217,20 @@ SOCIAL_AUTH_PIPELINE = (
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         },
+#     }
+# }
+#
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# SESSION_CACHE_ALIAS = 'default'
+#
+# ELASTICSEARCH_DSL = {
+#     'default': {'hosts': '127.0.0.1:9200'},
+# }
