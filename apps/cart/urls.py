@@ -1,8 +1,13 @@
 from django.urls import path
 
-from apps.cart.views import get_cart_handler, post_cart_handler
+from apps.cart.views import (
+    get_cart_handler,
+    add_to_cart_handler,
+    remove_from_cart_handler,
+)
 
 urlpatterns = [
     path('', get_cart_handler),
-    path('<uuid:uuid>/<slug:slug>/', post_cart_handler),
+    path('add/<uuid:uuid>/<slug:slug>/', add_to_cart_handler),
+    path('remove/<uuid:uuid>/<slug:slug>/', remove_from_cart_handler),
 ]

@@ -14,9 +14,11 @@ class Cart(models.Model):
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
     )
-    count = models.PositiveSmallIntegerField(verbose_name='Количество товаров')
     total_price = models.DecimalField(
-        max_digits=7, decimal_places=0, verbose_name='Общая цена'
+        max_digits=7,
+        decimal_places=0,
+        default=0.00,
+        verbose_name='Общая цена',
     )
 
     user = models.OneToOneField(
@@ -24,15 +26,43 @@ class Cart(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
     )
-    products = models.ManyToManyField(
-        Product,
-        related_name='cart_products',
-        verbose_name='Продукты',
-    )
 
     def __str__(self) -> str:
-        return f'Cart for {self.user}'
+        return f'Корзина пользователя {self.user}'
 
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
+
+
+class CartItem(models.Model):
+    """
+    Промежуточная модель для хранения товаров в корзине и их количества.
+    """
+
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID'
+    )
+    product = models.ForeignKey(
+        Product,
+        related_name='cart_items',
+        on_delete=models.CASCADE,
+        verbose_name='Продукт',
+    )
+    cart = models.ForeignKey(
+        Cart,
+        related_name='items',
+        on_delete=models.CASCADE,
+        verbose_name='Корзина',
+    )
+    quantity = models.PositiveIntegerField(
+        default=1, verbose_name='Количество'
+    )
+
+    def __str__(self):
+        return f'{self.product.name} x {self.quantity}'
+
+    class Meta:
+        unique_together = ('product', 'cart')
+        verbose_name = 'Элемент корзины'
+        verbose_name_plural = 'Элементы корзины'
