@@ -4,7 +4,7 @@ from drf_spectacular.utils import (
     extend_schema,
     OpenApiResponse,
     extend_schema_view,
-    OpenApiExample,
+    OpenApiParameter,
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -55,6 +55,17 @@ def handle_dislike_action(service, request: Request, uuid: str) -> Response:
     description='Добавление лайка к отзыву, комментарию или вопросу',
     summary='Поставить лайк',
     tags=['Лайки'],
+    parameters=[
+        OpenApiParameter(
+            name='for',
+            description='Куда ставится лайк',
+            required=True,
+        ),
+        OpenApiParameter(
+            name='uuid',
+            required=True,
+        ),
+    ],
     responses={
         200: OpenApiResponse(
             description='Успешный ответ с количеством лайков'
@@ -96,10 +107,15 @@ def like_handler(request: Request) -> Response:
     description='Добавление дизлайка к отзыву, комментарию или вопросу',
     summary='Поставить дизлайк',
     tags=['Дизлайки'],
-    examples=[
-        OpenApiExample(
-            'dislike_target',
-            description='Куда дизлайк',
+    parameters=[
+        OpenApiParameter(
+            name='for',
+            description='Куда ставится дизлайк',
+            required=True,
+        ),
+        OpenApiParameter(
+            name='uuid',
+            required=True,
         ),
     ],
     responses={
