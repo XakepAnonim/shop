@@ -40,7 +40,6 @@ def add_to_cart_handler(request: Request, uuid: str, slug: str) -> Response:
     """
     Обработчик добавления товара в корзину
     """
-    user = request.user
     product = ProductService.get(uuid, slug)
     quantity = request.data.get('quantity', 1)
     try:
@@ -53,7 +52,7 @@ def add_to_cart_handler(request: Request, uuid: str, slug: str) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    cart = CartService.add_product(user, product, quantity)
+    cart = CartService.add_product(request.user, product, quantity)
     serializer = CartSerializer(cart)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
@@ -72,7 +71,6 @@ def remove_from_cart_handler(
     """
     Обработчик удаления или уменьшения количества товара в корзине
     """
-    user = request.user
     product = ProductService.get(uuid, slug)
     quantity = request.data.get('quantity', 1)
     try:
@@ -85,6 +83,17 @@ def remove_from_cart_handler(
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    cart = CartService.remove_product(user, product, quantity)
+    cart = CartService.remove_product(request.user, product, quantity)
+    serializer = CartSerializer(cart)
+    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_from_cart_handler(
+        request: Request, uuid: str, slug: str
+) -> Response:
+    product = ProductService.get(uuid, slug)
+    cart = CartService.delete_product(request.user, product)
     serializer = CartSerializer(cart)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
