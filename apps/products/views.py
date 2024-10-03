@@ -1,5 +1,6 @@
 from typing import cast
 
+from django.core.cache import cache
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -67,22 +68,3 @@ def post_wishlist_product(request: Request, uuid: str, slug: str) -> Response:
     wishlist_product = WishlistService.get_or_create(user, product)
     serializer = WishlistProductSerializer(wishlist_product)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-
-
-# from .search import ProductIndex
-#
-# def search_products(query):
-#     search = ProductIndex.search().query("multi_match", query=query, fields=['name', 'description'])
-#     response = search.execute()
-#     return response
-#
-#
-# from django.core.cache import cache
-#
-# def cached_search(query):
-#     cache_key = f'search_{query}'
-#     result = cache.get(cache_key)
-#     if not result:
-#         result = search_products(query)
-#         cache.set(cache_key, result, timeout=60*15)  # кэширование на 15 минут
-#     return result

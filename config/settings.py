@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'debug_toolbar',
     'mptt',
+    'django_elasticsearch_dsl',
 
     'config',
     'apps.users',
@@ -123,7 +124,7 @@ USE_TZ = True
 MEDIA_ROOT = '/app/media/'
 MEDIA_URL = '/app/media/'
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = '/app/static/'
 
 LOGIN_REDIRECT_URL = '/'
@@ -158,8 +159,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'simple': {
-            'format': '[{asctime}] [{levelname}] [{filename} {lineno}] '
-            '{message}',
+            'format': '[{asctime}] [{levelname}] [{filename} {lineno}] {message}',
             'style': '{',
         },
     },
@@ -221,10 +221,10 @@ INTERNAL_IPS = [
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': 'redis://redis:6379/1',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
+        }
     }
 }
 
@@ -232,5 +232,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
 ELASTICSEARCH_DSL = {
-    'default': {'hosts': '127.0.0.1:9200'},
+    'default': {
+        'hosts': 'http://elasticsearch:9200',
+    },
 }
