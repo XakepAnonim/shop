@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -21,17 +22,17 @@ def get_category_handler(request: Request, uuid: str, slug: str) -> Response:
     """
     Обработчик на получение конкретной категории по uuid и slug.
     """
-    # cache_key = f'category_{uuid}_{slug}'
-    # cached_category = cache.get(cache_key)
-    #
-    # if cached_category:
-    #     return Response({'data': cached_category}, status=status.HTTP_200_OK)
+    cache_key = f'category_{uuid}_{slug}'
+    cached_category = cache.get(cache_key)
+
+    if cached_category:
+        return Response({'data': cached_category}, status=status.HTTP_200_OK)
 
     category = get_category(uuid, slug)
     serializer = CategorySerializer(category)
 
-    # # Кэшируем результат на 10 минут
-    # cache.set(cache_key, serializer.data, timeout=600)
+    # Кэшируем результат на 10 минут
+    cache.set(cache_key, serializer.data, timeout=600)
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
 

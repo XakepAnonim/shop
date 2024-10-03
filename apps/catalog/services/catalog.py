@@ -9,18 +9,19 @@ def get_all_categories() -> QuerySet[Category]:
     """
     Получение полного каталога с предзагрузкой вложенных категорий и продуктов.
     """
-    # cache_key = 'all_categories'
-    # cached_data = cache.get(cache_key)
-    # if cached_data:
-    #     return cached_data
+    cache_key = 'all_categories'
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
 
     categories = (
         Category.objects.prefetch_related('products')
         .prefetch_related('children')
         .all()
     )
-    # # Сохраняем результат в Redis на 10 минут
-    # cache.set(cache_key, categories, timeout=600)
+
+    # Сохраняем результат в Redis на 10 минут
+    cache.set(cache_key, categories, timeout=600)
     return categories
 
 

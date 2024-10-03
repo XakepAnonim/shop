@@ -1,6 +1,7 @@
 import uuid
 from typing import Any
 
+from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -42,7 +43,7 @@ class Category(MPTTModel):
         if not self.slug:
             self.slug = self.generate_unique_slug()
         super().save(*args, **kwargs)
-        # cache.delete('all_categories')
+        cache.delete('all_categories')
 
     def generate_unique_slug(self) -> str:
         base_slug = slugify(unidecode(self.name))
