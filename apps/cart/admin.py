@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls.base import reverse
 from django.utils.html import format_html
 
-from apps.cart.models import CartItem, Cart
+from apps.cart.models import CartItem, Cart, Order
 
 
 class CartItemInline(admin.TabularInline):
@@ -46,3 +46,38 @@ class CartAdmin(admin.ModelAdmin):
     def user_display(self, obj: Cart) -> str:
         url = reverse('admin:users_user_change', args=[obj.user.id])
         return format_html('<a href="{}">{}</a>', url, obj.user.username)
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+        'uuid',
+        'owner_display',
+        'quantity',
+        'totalPrice',
+        'deliveryType',
+        'paymentMethod',
+        'onlineMethod',
+        'deliveryAddress',
+        'status',
+    )
+    search_fields = ('user',)
+    list_filter = ('status', 'paymentMethod', 'deliveryType', 'onlineMethod')
+    readonly_fields = (
+        'uuid',
+        'totalPrice',
+        'quantity',
+        'deliveryType',
+        'paymentMethod',
+        'onlineMethod',
+        'deliveryAddress',
+    )
+
+    @admin.display(description='Чей')
+    def owner_display(self, obj: Order) -> str:
+        if obj.user:
+            url = reverse('admin:users_user_change', args=[obj.user.id])
+            return format_html('<a href="{}">{}</a>', url, obj.user.username) if obj.user else '-'
+        elif obj.company:
+            url = reverse('admin:main_company_change', args=[obj.company.id])
+            return format_html('<a href="{}">{}</a>', url, obj.company.name) if obj.company else '-'

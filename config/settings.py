@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'mptt',
     'django_elasticsearch_dsl',
+    'silk',
 
     'config',
     'apps.users',
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'silk.middleware.SilkyMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -236,3 +238,7 @@ ELASTICSEARCH_DSL = {
         'hosts': 'http://elasticsearch:9200',
     },
 }
+
+SBP_API_KEY = os.environ['SBP_API_KEY']
+YOOMONEY_API_KEY = os.environ['YOOMONEY_API_KEY']
+CARD_API_KEY = os.environ['CARD_API_KEY']
