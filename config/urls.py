@@ -16,3 +16,5 @@ urlpatterns += [
         name='swagger',
     ),
 ]
+
+urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
