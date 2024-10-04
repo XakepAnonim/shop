@@ -8,6 +8,10 @@ from apps.users.services.user import UserService
 
 
 class ContactService:
+    """
+    Сервис для проверки приходящего контакта
+    """
+
     @staticmethod
     def check_contact_type(contact: str) -> dict | Response:
         """

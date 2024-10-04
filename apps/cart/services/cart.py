@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import transaction
 
 from apps.cart.models import Cart, CartItem
@@ -6,16 +8,41 @@ from apps.users.models import User
 
 
 class CartService:
+    """
+    Сервис для работы с корзиной
+    """
+
     @staticmethod
     def get(user: User) -> Cart:
+        """
+        Получение корзины пользователя
+        """
         cart, created = Cart.objects.get_or_create(user=user)
         return cart
 
+    @staticmethod
+    def get_by_uuid(cart_uuid: uuid.uuid4) -> Cart:
+        """
+        Получение корзины по uuid
+        """
+        cart = Cart.objects.filter(uuid=cart_uuid).first()
+        return cart
+
+    @staticmethod
+    def delete(cart: Cart) -> None:
+        """
+        Удаление корзины
+        """
+        cart.items.all().delete()
+        cart.total_price = 0
+        cart.save()
+
     @classmethod
     @transaction.atomic
-    def add_product(
-            cls, user: User, product: Product, quantity: int = 1
-    ) -> Cart:
+    def add_product(cls, user: User, product: Product, quantity: int = 1) -> Cart:
+        """
+        Добавление товара в корзину
+        """
         cart = cls.get(user)
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart, product=product
@@ -30,9 +57,10 @@ class CartService:
 
     @classmethod
     @transaction.atomic
-    def remove_product(
-            cls, user: User, product: Product, quantity: int = 1
-    ) -> Cart:
+    def remove_product(cls, user: User, product: Product, quantity: int = 1) -> Cart:
+        """
+        Удаление товара из корзины
+        """
         cart = cls.get(user)
         cart_item = CartItem.objects.filter(cart=cart, product=product).first()
         if cart_item:
@@ -46,6 +74,9 @@ class CartService:
 
     @staticmethod
     def update_cart_totals(cart: Cart):
+        """
+        Обновление общего счета корзины
+        """
         total = 0
         for item in cart.items.all():
             total += item.product.price * item.quantity
@@ -54,6 +85,9 @@ class CartService:
 
     @classmethod
     def delete_product(cls, user: User, product: Product) -> Cart:
+        """
+        Удаление товара из корзины
+        """
         cart = cls.get(user)
         cart_item = CartItem.objects.filter(cart=cart, product=product)
         cart_item.delete()

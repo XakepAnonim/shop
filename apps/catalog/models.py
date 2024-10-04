@@ -30,6 +30,7 @@ class Category(MPTTModel):
         blank=True,
         verbose_name='Изображение',
     )
+
     parent = TreeForeignKey(
         'self',
         on_delete=models.CASCADE,

@@ -7,4 +7,7 @@ from apps.products.models import Product
 
 @receiver(post_save, sender=Product)
 def update_product_index(sender, instance, **kwargs):
+    """
+    Обновляет индекс Elasticsearch при сохранении модели
+    """
     ProductDocument().update(instance)

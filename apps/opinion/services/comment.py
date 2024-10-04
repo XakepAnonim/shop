@@ -6,23 +6,31 @@ from apps.users.models import User
 
 
 class CommentService:
-    @staticmethod
-    def get(opinion_uuid: str) -> Comment:
-        opinion_comment = get_object_or_404(Comment, uuid=opinion_uuid)
-        return opinion_comment
+    """
+    Сервис для работы с комментариями
+    """
 
     @staticmethod
     def filter_opinion(opinion: Opinion) -> QuerySet[Comment]:
+        """
+        Фильтрация комментариев по отзыву
+        """
         opinion_comments = Comment.objects.filter(opinion=opinion)
         return opinion_comments
 
     @staticmethod
     def filter_question(question: Question) -> QuerySet[Comment]:
+        """
+        Фильтрация комментариев по вопросу
+        """
         question_comments = Comment.objects.filter(question=question)
         return question_comments
 
     @staticmethod
     def add_or_remove_likes(user: User, opinion_comment: Comment) -> None:
+        """
+        Добавление или удаление лайков комментариям
+        """
         if user in opinion_comment.likes.all():
             opinion_comment.likes.remove(user)
         else:
@@ -31,6 +39,9 @@ class CommentService:
 
     @staticmethod
     def add_or_remove_dislikes(user: User, opinion_comment: Comment) -> None:
+        """
+        Добавление или удаление дизлайков комментариям
+        """
         if user in opinion_comment.dislikes.all():
             opinion_comment.dislikes.remove(user)
         else:

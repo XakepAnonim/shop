@@ -4,6 +4,10 @@ from apps.products.models import Product
 
 
 class ProductService:
+    """
+    Сервис для работы с товарами
+    """
+
     @staticmethod
     def get(product_uuid: str, slug: str) -> Product:
         """

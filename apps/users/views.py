@@ -39,33 +39,30 @@ def manage_user_handler(request: Request) -> Response:
     """
     Менеджер взаимодействия с пользователем
     """
-    if isinstance(request.user, User) and isinstance(request.user.uuid, UUID):
-        user = UserService.get(str(request.user.uuid))
+    user = UserService.get(request.user.uuid)
 
-        if request.method == 'GET':
-            """
-            Обработчик получения профиля пользователя
-            """
+    if request.method == 'GET':
+        """
+        Обработчик получения профиля пользователя
+        """
 
-            serializer = AuthUserSerializer(user)
-            return Response(
-                {'data': serializer.data}, status=status.HTTP_200_OK
-            )
-        if request.method == 'PATCH':
-            """
-            Обработчик обновления профиля пользователя
-            """
+        serializer = AuthUserSerializer(user)
+        return Response(
+            {'data': serializer.data}, status=status.HTTP_200_OK
+        )
+    if request.method == 'PATCH':
+        """
+        Обработчик обновления профиля пользователя
+        """
 
-            serializer = UpdateUserSerializer(
-                data=request.data, instance=user, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(
-                {'data': serializer.data}, status=status.HTTP_200_OK
-            )
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = UpdateUserSerializer(
+            data=request.data, instance=user, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'data': serializer.data}, status=status.HTTP_200_OK
+        )
 
 
 @extend_schema(

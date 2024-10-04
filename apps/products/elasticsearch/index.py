@@ -6,7 +6,15 @@ from apps.products.models import Product
 
 @registry.register_document
 class ProductDocument(Document):
+    """
+    Объект по которому производится поиск
+    """
+
     class Index:
+        """
+        Настройки индекса
+        """
+
         name = 'products'
         settings = {
             'number_of_shards': 1,
@@ -35,6 +43,10 @@ class ProductDocument(Document):
         }
 
     class Django:
+        """
+        Настройки связей с моделью товара
+        """
+
         model = Product
         fields = [
             'uuid',

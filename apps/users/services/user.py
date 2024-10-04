@@ -5,6 +5,10 @@ from apps.users.models import User
 
 
 class UserService:
+    """
+    Сервис для работы с пользователями
+    """
+
     @staticmethod
     def get(uuid: str) -> User:
         """

@@ -14,7 +14,6 @@ def cached_search(request: Request) -> Response:
     """
     Поиск товаров по запросу с кэшированием
     """
-    # Получаем строку запроса из параметров GET-запроса
     query = request.GET.get('q', '')
 
     if not query:

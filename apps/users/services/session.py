@@ -9,6 +9,10 @@ from apps.users.models import UserSession, User
 
 
 class SessionService:
+    """
+    Сервис для работы с сеансами
+    """
+
     @staticmethod
     def get(authSSID: str) -> UserSession:
         """
